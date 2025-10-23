@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -23,25 +24,32 @@ public class Pedido {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@ManyToOne(optional = false)
 	private Cliente cliente;
-	
+
 	@Enumerated(EnumType.STRING)
 	private StatusPedido status = StatusPedido.CRIADO;
-	
+
 	private LocalDateTime dataCriacao = LocalDateTime.now();
-	
+
 	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ItemPedido> itens = new ArrayList<>();
-	
+
+	@Column(precision = 10, scale = 2)
+	private BigDecimal cashbackUtilizado = BigDecimal.ZERO;
+
 	public BigDecimal getTotal() {
-		
-		return itens.stream()
+
+		BigDecimal subtotal = itens.stream()
 				.map(i -> i.getValorVenda().multiply(new BigDecimal(i.getQuantidade()))
-					.subtract(i.getDesconto() == null ? BigDecimal.ZERO : i.getDesconto()))
+						.subtract(i.getDesconto() == null ? BigDecimal.ZERO : i.getDesconto()))
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		return subtotal.subtract(cashbackUtilizado);
 	}
+
+
 
 	public Long getId() {
 		return id;
@@ -82,4 +90,12 @@ public class Pedido {
 	public void setItens(List<ItemPedido> itens) {
 		this.itens = itens;
 	}
+	
+	public BigDecimal getCashbackUtilizado() {
+        return cashbackUtilizado;
+    }
+
+    public void setCashbackUtilizado(BigDecimal cashbackUtilizado) {
+        this.cashbackUtilizado = cashbackUtilizado;
+    }
 }

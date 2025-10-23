@@ -34,6 +34,9 @@ public class Cliente {
 
     @Column(nullable = false, columnDefinition = "boolean default true")
     private Boolean ativo = true;
+    
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cashback cashback;
 
     public Cliente() {}
 
@@ -46,6 +49,7 @@ public class Cliente {
         this.endereco = endereco;
         this.senha = senha;
         this.ativo = true;
+        this.cashback = new Cashback(this);
     }
 
 	public Long getId() {
@@ -111,4 +115,12 @@ public class Cliente {
 	public void setAtivo(Boolean ativo) {
 		this.ativo = ativo;
 	}
+	
+	public Cashback getCashback() {
+        return cashback;
+    }
+
+    public void setCashback(Cashback cashback) {
+        this.cashback = cashback;
+    }
 }

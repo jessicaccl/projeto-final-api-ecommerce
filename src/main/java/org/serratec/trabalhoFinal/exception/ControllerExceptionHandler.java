@@ -59,6 +59,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
+    @ExceptionHandler(SaldoInsuficienteException.class)
+    public ResponseEntity<ErrorResponse> handleSaldoInsuficiente(SaldoInsuficienteException ex, HttpServletRequest request) {
+        ErrorResponse body = buildError(HttpStatus.BAD_REQUEST, "Operação Inválida", ex.getMessage(), request.getRequestURI(), null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+    
+   
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
@@ -121,3 +128,5 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         public void setDetails(List<String> details) { this.details = details; }
     }
 }
+
+
