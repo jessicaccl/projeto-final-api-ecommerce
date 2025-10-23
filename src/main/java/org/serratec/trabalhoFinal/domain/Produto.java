@@ -32,6 +32,18 @@ public class Produto {
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "id_categoria")
 	private Categoria categoria;
+	
+	@Column(nullable = false)
+	private Boolean ativo = true;
+	
+
+	public Boolean getAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
+	}
 
 	public Long getId() {
 		return id;

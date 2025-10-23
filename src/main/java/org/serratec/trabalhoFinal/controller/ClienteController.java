@@ -2,6 +2,7 @@ package org.serratec.trabalhoFinal.controller;
 
 import java.util.List;
 
+import org.serratec.trabalhoFinal.dto.ClienteAtualizacaoDTO;
 import org.serratec.trabalhoFinal.dto.ClienteCriacaoDTO;
 import org.serratec.trabalhoFinal.dto.ClienteDTO;
 import org.serratec.trabalhoFinal.service.ClienteService;
@@ -14,33 +15,39 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
-	
+
     private final ClienteService service;
-    public ClienteController(ClienteService service) { 
-    	this.service = service; 
+
+    public ClienteController(ClienteService service) {
+        this.service = service;
     }
-    
+
     @GetMapping
     public ResponseEntity<List<ClienteDTO>> listarTodos() {
-        List<ClienteDTO> clientes = service.listarTodos();
-        return ResponseEntity.ok(clientes);
+        return ResponseEntity.ok(service.listarTodos());
     }
 
     @PostMapping
     public ResponseEntity<ClienteDTO> criar(@Valid @RequestBody ClienteCriacaoDTO dto) {
-    	
         return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDTO> atualizar(@PathVariable Long id, @Valid @RequestBody ClienteCriacaoDTO dto) {
-    	
+    public ResponseEntity<ClienteDTO> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ClienteAtualizacaoDTO dto) {
+
         return ResponseEntity.ok(service.atualizar(id, dto));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClienteDTO> buscar(@PathVariable Long id) {
-    	
         return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

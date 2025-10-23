@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.serratec.trabalhoFinal.domain.Cliente;
 import org.serratec.trabalhoFinal.domain.Endereco;
+import org.serratec.trabalhoFinal.dto.ClienteAtualizacaoDTO;
 import org.serratec.trabalhoFinal.dto.ClienteCriacaoDTO;
 import org.serratec.trabalhoFinal.dto.ClienteDTO;
 import org.serratec.trabalhoFinal.dto.EnderecoDTO;
@@ -12,6 +13,8 @@ import org.serratec.trabalhoFinal.exception.NotFoundException;
 import org.serratec.trabalhoFinal.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.validation.Valid;
 
 @Service
 public class ClienteService {
@@ -34,17 +37,20 @@ public class ClienteService {
         c.setTelefone(dto.getTelefone());
         c.setEmail(dto.getEmail());
         c.setCpf(dto.getCpf());
+        c.setSenha(dto.getSenha()); 
 
-        Endereco end = enderecoService.buscarOuCriar(dto.getEnderecoDTO());
-        c.setEndereco(end);
+        EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
+        Endereco endereco = enderecoService.buscarOuCriar(enderecoDTO);
+        c.setEndereco(endereco);
 
         Cliente saved = clienteRepository.save(c);
         emailService.enviarNotificacaoCliente(saved, "criado");
+        
         return toDto(saved);
     }
 
     @Transactional
-    public ClienteDTO atualizar(Long id, ClienteCriacaoDTO dto) {
+    public ClienteDTO atualizar(Long id, @Valid ClienteAtualizacaoDTO dto) {
         Cliente c = clienteRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
 
@@ -53,11 +59,13 @@ public class ClienteService {
         c.setEmail(dto.getEmail());
         c.setCpf(dto.getCpf());
 
-        Endereco end = enderecoService.buscarOuCriar(dto.getEnderecoDTO());
-        c.setEndereco(end);
+        EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
+        Endereco endereco = enderecoService.buscarOuCriar(enderecoDTO);
+        c.setEndereco(endereco);
 
         Cliente saved = clienteRepository.save(c);
         emailService.enviarNotificacaoCliente(saved, "atualizado");
+        
         return toDto(saved);
     }
 
@@ -70,8 +78,18 @@ public class ClienteService {
     public List<ClienteDTO> listarTodos() {
         return clienteRepository.findAll()
                 .stream()
+                .filter(Cliente::getAtivo)
                 .map(this::toDto)
                 .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void deletar(Long id) {
+        Cliente c = clienteRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+
+        c.setAtivo(false);
+        clienteRepository.save(c);
     }
 
     private ClienteDTO toDto(Cliente c) {

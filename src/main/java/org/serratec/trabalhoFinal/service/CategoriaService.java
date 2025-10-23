@@ -4,6 +4,7 @@ import org.serratec.trabalhoFinal.domain.Categoria;
 import org.serratec.trabalhoFinal.dto.CategoriaDTO;
 import org.serratec.trabalhoFinal.exception.NotFoundException;
 import org.serratec.trabalhoFinal.repository.CategoriaRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,5 +43,28 @@ public class CategoriaService {
             dto.setNome(c.getNome());
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    public CategoriaDTO buscarPorId(Long id) {
+        Categoria categoria = repo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Categoria não encontrada"));
+        return toDto(categoria);
+    }
+    
+    private CategoriaDTO toDto(Categoria c) {
+        CategoriaDTO dto = new CategoriaDTO();
+        dto.setId(c.getId());
+        dto.setNome(c.getNome());
+ 
+
+        return dto;
+    }
+
+    public void deletar(Long id) {
+        try {
+            repo.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Não é possível deletar a categoria: existem produtos associados.");
+        }
     }
 }

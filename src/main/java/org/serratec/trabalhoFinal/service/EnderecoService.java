@@ -8,6 +8,7 @@ import org.serratec.trabalhoFinal.dto.EnderecoDTO;
 import org.serratec.trabalhoFinal.repository.EnderecoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class EnderecoService {
@@ -20,32 +21,52 @@ public class EnderecoService {
 
     @Transactional
     public Endereco buscarOuCriar(EnderecoDTO dto) {
-        return enderecoRepository.findByCep(dto.getCep())
-                .orElseGet(() -> {
-                    Endereco novo = new Endereco();
-                    novo.setCep(dto.getCep());
-                    novo.setLogradouro(dto.getLogradouro());
-                    novo.setComplemento(dto.getComplemento());
-                    novo.setBairro(dto.getBairro());
-                    novo.setLocalidade(dto.getLocalidade());
-                    novo.setUf(dto.getUf());
-                    return enderecoRepository.save(novo);
-                });
+        Endereco existente = enderecoRepository.findByCep(dto.getCep());
+        if (existente != null) {
+            return existente;
+        }
+
+        Endereco novo = new Endereco();
+        novo.setCep(dto.getCep());
+        novo.setLogradouro(dto.getLogradouro());
+        novo.setComplemento(dto.getComplemento());
+        novo.setBairro(dto.getBairro());
+        novo.setLocalidade(dto.getLocalidade());
+        novo.setUf(dto.getUf());
+        return enderecoRepository.save(novo);
     }
 
     public EnderecoDTO buscar(String cep) {
-        Endereco endereco = enderecoRepository.findByCep(cep)
-                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
-        return toDto(endereco);
+        Endereco endereco = enderecoRepository.findByCep(cep);
+        if (endereco != null) {
+            return toDto(endereco);
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://viacep.com.br/ws/" + cep + "/json/";
+        EnderecoDTO enderecoViaCep = restTemplate.getForObject(url, EnderecoDTO.class);
+
+        if (enderecoViaCep != null && enderecoViaCep.getCep() != null) {
+            Endereco novo = new Endereco();
+            novo.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
+            novo.setLogradouro(enderecoViaCep.getLogradouro());
+            novo.setComplemento(enderecoViaCep.getComplemento());
+            novo.setBairro(enderecoViaCep.getBairro());
+            novo.setLocalidade(enderecoViaCep.getLocalidade());
+            novo.setUf(enderecoViaCep.getUf());
+            enderecoRepository.save(novo);
+            return toDto(novo);
+        }
+
+        return null;
     }
-    
+
     public List<EnderecoDTO> listarTodos() {
         return enderecoRepository.findAll()
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
-
 
     private EnderecoDTO toDto(Endereco e) {
         EnderecoDTO dto = new EnderecoDTO();
