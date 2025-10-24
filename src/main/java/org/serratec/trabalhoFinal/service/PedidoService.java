@@ -10,132 +10,203 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
 
-	private final PedidoRepository pedidoRepo;
-	private final ClienteRepository clienteRepo;
-	private final ProdutoRepository produtoRepo;
-	private final CashbackService cashbackService;
+    private final PedidoRepository pedidoRepo;
+    private final ClienteRepository clienteRepo;
+    private final ProdutoRepository produtoRepo;
+    private final CashbackService cashbackService;
+    private final DescontoService descontoService;
 
-	public PedidoService(PedidoRepository pedidoRepo, ClienteRepository clienteRepo, ProdutoRepository produtoRepo,
-			CashbackService cashbackService) {
-		this.pedidoRepo = pedidoRepo;
-		this.clienteRepo = clienteRepo;
-		this.produtoRepo = produtoRepo;
-		this.cashbackService = cashbackService;
-	}
+    public PedidoService(PedidoRepository pedidoRepo, ClienteRepository clienteRepo, ProdutoRepository produtoRepo,
+                         CashbackService cashbackService, DescontoService descontoService) {
+        this.pedidoRepo = pedidoRepo;
+        this.clienteRepo = clienteRepo;
+        this.produtoRepo = produtoRepo;
+        this.cashbackService = cashbackService;
+        this.descontoService = descontoService;
+    }
 
-	@Transactional
-	public PedidoDTO criar(PedidoCriacaoDTO dto) {
-		Cliente cliente = clienteRepo.findById(dto.getClienteId())
-				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+    @Transactional
+    public PedidoDTO criar(PedidoCriacaoDTO dto) {
+        Cliente cliente = clienteRepo.findById(dto.getClienteId())
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
 
-		Pedido pedido = new Pedido();
-		pedido.setCliente(cliente);
-		pedido.setStatus(StatusPedido.CRIADO);
+        Pedido pedido = new Pedido();
+        pedido.setCliente(cliente);
+        pedido.setStatus(StatusPedido.CRIADO);
 
-		for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
-			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
-					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
+        BigDecimal totalPedidoBruto = BigDecimal.ZERO;
 
-			ItemPedido item = new ItemPedido();
-			item.setPedido(pedido);
-			item.setProduto(p);
-			item.setQuantidade(itemDTO.getQuantidade());
-			item.setValorVenda(p.getPreco());
-			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
-			pedido.getItens().add(item);
-		}
+        for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
+            Produto p = produtoRepo.findById(itemDTO.getProdutoId())
+                    .orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
 
-		Pedido saved = pedidoRepo.save(pedido);
-		return toDto(saved);
-	}
+            ItemPedido item = new ItemPedido();
+            item.setPedido(pedido);
+            item.setProduto(p);
+            item.setQuantidade(itemDTO.getQuantidade());
+            item.setValorVenda(p.getPreco());
+            item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
+            pedido.getItens().add(item);
 
-	public PedidoDTO buscarPorId(Long id) {
-		Pedido p = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
-		return toDto(p);
-	}
+            BigDecimal subtotalItem = item.getValorVenda()
+                    .multiply(BigDecimal.valueOf(item.getQuantidade()))
+                    .subtract(item.getDesconto());
+            totalPedidoBruto = totalPedidoBruto.add(subtotalItem);
+        }
 
-	@Transactional
-	public PedidoDTO atualizarPedido(Long id, PedidoCriacaoDTO dto) {
-		Pedido pedido = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+        BigDecimal totalComDesconto = descontoService.aplicarDescontoPrimeiroPedido(totalPedidoBruto, cliente.getId());
 
-		Cliente cliente = clienteRepo.findById(dto.getClienteId())
-				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-		pedido.setCliente(cliente);
+        if (totalComDesconto.compareTo(totalPedidoBruto) < 0) {
+            BigDecimal descontoTotal = totalPedidoBruto.subtract(totalComDesconto);
 
-		pedido.getItens().clear();
-		for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
-			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
-					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
+            for (ItemPedido item : pedido.getItens()) {
+                BigDecimal subtotalItem = item.getValorVenda()
+                        .multiply(BigDecimal.valueOf(item.getQuantidade()))
+                        .subtract(item.getDesconto());
 
-			ItemPedido item = new ItemPedido();
-			item.setPedido(pedido);
-			item.setProduto(p);
-			item.setQuantidade(itemDTO.getQuantidade());
-			item.setValorVenda(p.getPreco());
-			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
-			pedido.getItens().add(item);
-		}
+                BigDecimal descontoProporcional = subtotalItem
+                        .multiply(descontoTotal)
+                        .divide(totalPedidoBruto, 4, RoundingMode.HALF_UP);
 
-		Pedido saved = pedidoRepo.save(pedido);
-		return toDto(saved);
-	}
-	
-	@Transactional // Faz parte da logica do Cashback
+                item.setDesconto(item.getDesconto().add(descontoProporcional));
+            }
+            pedido.setValorTotal(totalComDesconto);
+        } else {
+            pedido.setValorTotal(totalPedidoBruto);
+        }
+
+        Pedido saved = pedidoRepo.save(pedido);
+        return toDto(saved);
+    }
+
+    public PedidoDTO buscarPorId(Long id) {
+        Pedido p = pedidoRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+        return toDto(p);
+    }
+
+    @Transactional
+    public PedidoDTO atualizarPedido(Long id, PedidoCriacaoDTO dto) {
+        Pedido pedido = pedidoRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+
+        Cliente cliente = clienteRepo.findById(dto.getClienteId())
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+        pedido.setCliente(cliente);
+
+        pedido.getItens().clear();
+        BigDecimal totalPedidoBruto = BigDecimal.ZERO;
+
+        for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
+            Produto p = produtoRepo.findById(itemDTO.getProdutoId())
+                    .orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
+
+            ItemPedido item = new ItemPedido();
+            item.setPedido(pedido);
+            item.setProduto(p);
+            item.setQuantidade(itemDTO.getQuantidade());
+            item.setValorVenda(p.getPreco());
+            item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
+            pedido.getItens().add(item);
+
+            BigDecimal subtotalItem = item.getValorVenda()
+                    .multiply(BigDecimal.valueOf(item.getQuantidade()))
+                    .subtract(item.getDesconto());
+            totalPedidoBruto = totalPedidoBruto.add(subtotalItem);
+        }
+
+        BigDecimal totalComDesconto = descontoService.aplicarDescontoPrimeiroPedido(totalPedidoBruto, cliente.getId());
+
+        if (totalComDesconto.compareTo(totalPedidoBruto) < 0) {
+            BigDecimal descontoTotal = totalPedidoBruto.subtract(totalComDesconto);
+            for (ItemPedido item : pedido.getItens()) {
+                BigDecimal subtotalItem = item.getValorVenda()
+                        .multiply(BigDecimal.valueOf(item.getQuantidade()))
+                        .subtract(item.getDesconto());
+
+                BigDecimal descontoProporcional = subtotalItem
+                        .multiply(descontoTotal)
+                        .divide(totalPedidoBruto, 4, RoundingMode.HALF_UP);
+
+                item.setDesconto(item.getDesconto().add(descontoProporcional));
+            }
+            pedido.setValorTotal(totalComDesconto);
+        } else {
+            pedido.setValorTotal(totalPedidoBruto);
+        }
+
+        Pedido saved = pedidoRepo.save(pedido);
+        return toDto(saved);
+    }
+
+    @Transactional
     public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
         Pedido pedido = pedidoRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
-        
-           if (novoStatus == StatusPedido.PAGO && pedido.getStatus() != StatusPedido.PAGO) {
-            BigDecimal valorTotalParaCashback = pedido.getTotal(); 
+
+        if (novoStatus == StatusPedido.PAGO && pedido.getStatus() != StatusPedido.PAGO) {
+            BigDecimal valorTotalParaCashback = pedido.getValorTotal();  // Corrigido para getValorTotal
             cashbackService.creditar(pedido.getCliente().getId(), valorTotalParaCashback);
-        } else if (novoStatus == StatusPedido.CANCELADO && pedido.getStatus() == StatusPedido.PAGO) {
-       }
-        
+        }
+
         pedido.setStatus(novoStatus);
         Pedido saved = pedidoRepo.save(pedido);
         return toDto(saved);
     }
-	
 
-	public List<PedidoDTO> listarTodos() {
-		return pedidoRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
-	}
+    public List<PedidoDTO> listarTodos() {
+        return pedidoRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
+    }
 
-	public void deletar(Long id) {
-		if (!pedidoRepo.existsById(id)) {
-			throw new NotFoundException("Pedido não encontrado");
-		}
-		pedidoRepo.deleteById(id);
-	}
+    public void deletar(Long id) {
+        if (!pedidoRepo.existsById(id)) {
+            throw new NotFoundException("Pedido não encontrado");
+        }
+        pedidoRepo.deleteById(id);
+    }
 
-	private PedidoDTO toDto(Pedido p) {
-		PedidoDTO dto = new PedidoDTO();
-		dto.setId(p.getId());
-		dto.setClienteNome(p.getCliente().getNome());
-		dto.setStatus(p.getStatus().name());
-		dto.setDataCriacao(p.getDataCriacao().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+    private PedidoDTO toDto(Pedido p) {
+        PedidoDTO dto = new PedidoDTO();
+        dto.setId(p.getId());
+        dto.setClienteNome(p.getCliente().getNome());
+        dto.setStatus(p.getStatus().name());
+        dto.setDataCriacao(p.getDataCriacao()
+                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
 
-		List<ItemPedidoDTO> itensDto = p.getItens().stream().map(item -> {
-			ItemPedidoDTO idto = new ItemPedidoDTO();
-			idto.setProdutoNome(item.getProduto().getNome());
-			idto.setQuantidade(item.getQuantidade());
-			idto.setValorUnitario(item.getValorVenda());
-			idto.setDesconto(item.getDesconto() == null ? BigDecimal.ZERO : item.getDesconto());
-			idto.setSubtotal(item.getValorVenda().multiply(new java.math.BigDecimal(item.getQuantidade()))
-					.subtract(item.getDesconto() == null ? BigDecimal.ZERO : item.getDesconto()));
-			return idto;
-		}).collect(java.util.stream.Collectors.toList());
+        BigDecimal totalBruto = p.getItens().stream()
+                .map(item -> item.getValorVenda().multiply(BigDecimal.valueOf(item.getQuantidade())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		dto.setItens(itensDto);
-		dto.setTotal(p.getTotal());
-		return dto;
-	}
-	
-	
+        BigDecimal totalFinal = p.getValorTotal();  // Use getValorTotal se o campo for valorTotal
+        BigDecimal valorDescontoTotal = totalBruto.subtract(totalFinal);
+
+        List<ItemPedidoDTO> itensDto = p.getItens().stream().map(item -> {
+            ItemPedidoDTO idto = new ItemPedidoDTO();
+            idto.setProdutoNome(item.getProduto().getNome());
+            idto.setQuantidade(item.getQuantidade());
+            idto.setValorUnitario(item.getValorVenda());
+            BigDecimal descontoOriginal = item.getDesconto() == null ? BigDecimal.ZERO : item.getDesconto();
+            idto.setDesconto(descontoOriginal);
+
+            BigDecimal subtotalSemDesconto = item.getValorVenda().multiply(BigDecimal.valueOf(item.getQuantidade()));
+            BigDecimal descontoProporcional = descontoOriginal.subtract(
+                    subtotalSemDesconto.multiply(valorDescontoTotal).divide(totalBruto, 4, RoundingMode.HALF_UP)
+            );
+
+            idto.setSubtotal(subtotalSemDesconto.subtract(descontoOriginal));
+            return idto;
+        }).collect(Collectors.toList());
+
+        dto.setItens(itensDto);
+        dto.setTotal(totalFinal);
+        dto.setValorDescontoTotal(valorDescontoTotal);
+        return dto;
+    }
 }
