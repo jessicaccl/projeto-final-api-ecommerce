@@ -21,9 +21,9 @@ public class EnderecoService {
 
     @Transactional
     public Endereco buscarOuCriar(EnderecoDTO dto) {
-        Endereco existente = enderecoRepository.findByCep(dto.getCep());
-        if (existente != null) {
-            return existente;
+        List<Endereco> existentes = enderecoRepository.findByCep(dto.getCep());
+        if (!existentes.isEmpty()) {
+            return existentes.get(0); 
         }
 
         Endereco novo = new Endereco();
@@ -37,29 +37,35 @@ public class EnderecoService {
     }
 
     public EnderecoDTO buscar(String cep) {
-        Endereco endereco = enderecoRepository.findByCep(cep);
-        if (endereco != null) {
-            return toDto(endereco);
+        List<Endereco> enderecos = enderecoRepository.findByCep(cep);
+        if (!enderecos.isEmpty()) {
+            return toDto(enderecos.get(0)); 
         }
 
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "https://viacep.com.br/ws/" + cep + "/json/";
-        EnderecoDTO enderecoViaCep = restTemplate.getForObject(url, EnderecoDTO.class);
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://viacep.com.br/ws/" + cep + "/json/";
+            EnderecoDTO enderecoViaCep = restTemplate.getForObject(url, EnderecoDTO.class);
 
-        if (enderecoViaCep != null && enderecoViaCep.getCep() != null) {
-            Endereco novo = new Endereco();
-            novo.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
-            novo.setLogradouro(enderecoViaCep.getLogradouro());
-            novo.setComplemento(enderecoViaCep.getComplemento());
-            novo.setBairro(enderecoViaCep.getBairro());
-            novo.setLocalidade(enderecoViaCep.getLocalidade());
-            novo.setUf(enderecoViaCep.getUf());
-            enderecoRepository.save(novo);
-            return toDto(novo);
+            if (enderecoViaCep != null && enderecoViaCep.getCep() != null) {
+                Endereco novo = new Endereco();
+                novo.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
+                novo.setLogradouro(enderecoViaCep.getLogradouro());
+                novo.setComplemento(enderecoViaCep.getComplemento());
+                novo.setBairro(enderecoViaCep.getBairro());
+                novo.setLocalidade(enderecoViaCep.getLocalidade());
+                novo.setUf(enderecoViaCep.getUf());
+                enderecoRepository.save(novo);
+                return toDto(novo);
+            }
+
+            throw new RuntimeException("CEP nÃ£o encontrado: " + cep);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao consultar ViaCEP para o CEP: " + cep, e);
         }
-
-        return null;
     }
+
 
     public List<EnderecoDTO> listarTodos() {
         return enderecoRepository.findAll()
