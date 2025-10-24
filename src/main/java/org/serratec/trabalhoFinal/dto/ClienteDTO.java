@@ -1,8 +1,10 @@
 package org.serratec.trabalhoFinal.dto;
 
+import org.serratec.trabalhoFinal.domain.Cliente;
+
 public class ClienteDTO {
 
-    private Long id;
+    private Long idUsuario;
     private String nome;
     private String telefone;
     private String email;
@@ -12,7 +14,7 @@ public class ClienteDTO {
     public ClienteDTO() {}
 
     public ClienteDTO(Long id, String nome, String telefone, String email, String cpf, EnderecoDTO endereco) {
-        this.id = id;
+        this.idUsuario = id;
         this.nome = nome;
         this.telefone = telefone;
         this.email = email;
@@ -21,11 +23,11 @@ public class ClienteDTO {
     }
 
     public Long getId() {
-        return id;
+        return idUsuario;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.idUsuario = id;
     }
 
     public String getNome() {

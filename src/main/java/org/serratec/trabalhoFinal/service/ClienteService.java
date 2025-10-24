@@ -5,12 +5,15 @@ import java.util.stream.Collectors;
 
 import org.serratec.trabalhoFinal.domain.Cliente;
 import org.serratec.trabalhoFinal.domain.Endereco;
+import org.serratec.trabalhoFinal.domain.Usuario;
 import org.serratec.trabalhoFinal.dto.ClienteAtualizacaoDTO;
 import org.serratec.trabalhoFinal.dto.ClienteCriacaoDTO;
 import org.serratec.trabalhoFinal.dto.ClienteDTO;
 import org.serratec.trabalhoFinal.dto.EnderecoDTO;
 import org.serratec.trabalhoFinal.exception.NotFoundException;
 import org.serratec.trabalhoFinal.repository.ClienteRepository;
+import org.serratec.trabalhoFinal.repository.UsuarioRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,57 +25,16 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final EnderecoService enderecoService;
     private final EmailService emailService;
+    private final UsuarioRepository usuarioRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public ClienteService(ClienteRepository clienteRepository, EnderecoService enderecoService,
-                          EmailService emailService) {
+                          EmailService emailService, UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.enderecoService = enderecoService;
         this.emailService = emailService;
-    }
-
-    @Transactional
-    public ClienteDTO criar(ClienteCriacaoDTO dto) {
-        Cliente c = new Cliente();
-        c.setNome(dto.getNome());
-        c.setTelefone(dto.getTelefone());
-        c.setEmail(dto.getEmail());
-        c.setCpf(dto.getCpf());
-        c.setSenha(dto.getSenha()); 
-
-        EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
-        Endereco endereco = enderecoService.buscarOuCriar(enderecoDTO);
-        c.setEndereco(endereco);
-
-        Cliente saved = clienteRepository.save(c);
-        emailService.enviarNotificacaoCliente(saved, "criado");
-        
-        return toDto(saved);
-    }
-
-    @Transactional
-    public ClienteDTO atualizar(Long id, @Valid ClienteAtualizacaoDTO dto) {
-        Cliente c = clienteRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-
-        c.setNome(dto.getNome());
-        c.setTelefone(dto.getTelefone());
-        c.setEmail(dto.getEmail());
-        c.setCpf(dto.getCpf());
-
-        EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
-        Endereco endereco = enderecoService.buscarOuCriar(enderecoDTO);
-        c.setEndereco(endereco);
-
-        Cliente saved = clienteRepository.save(c);
-        emailService.enviarNotificacaoCliente(saved, "atualizado");
-        
-        return toDto(saved);
-    }
-
-    public ClienteDTO buscarPorId(Long id) {
-        Cliente c = clienteRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-        return toDto(c);
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     
     public List<ClienteDTO> listarTodos() {
@@ -82,32 +44,95 @@ public class ClienteService {
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public ClienteDTO criar(ClienteCriacaoDTO dto) {
+    	Usuario usuario = new Usuario();
+    	usuario.setUsername(dto.getEmail());
+    	usuario.setPassword(passwordEncoder.encode(dto.getSenha() != null ? dto.getSenha() : "123456"));
+    	usuario.setRole("USER");
+
+    	// Criação do cliente
+    	Cliente cliente = new Cliente();
+    	cliente.setNome(dto.getNome());
+    	cliente.setTelefone(dto.getTelefone());
+    	cliente.setEmail(dto.getEmail());
+    	cliente.setSenha(passwordEncoder.encode(dto.getSenha()));
+    	cliente.setCpf(dto.getCpf());
+    	cliente.setUsuario(usuario);
+    	usuario.setCliente(cliente); // importante
+
+    	// Endereço básico se não tiver CEP válido
+    	Endereco endereco = new Endereco();
+    	if (dto.getCep() != null) {
+    	    EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
+    	    endereco = enderecoService.buscarOuCriar(enderecoDTO);
+    	}
+    	cliente.setEndereco(endereco);
+
+    	Cliente saved = clienteRepository.save(cliente);
+        emailService.enviarNotificacaoCliente(saved, "criado");
+        
+        return toDto(saved);
+    }
+
+    @Transactional
+    public ClienteDTO atualizar(Long id, @Valid ClienteAtualizacaoDTO dto) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+
+        cliente.setNome(dto.getNome());
+        cliente.setTelefone(dto.getTelefone());
+        cliente.setEmail(dto.getEmail());
+
+        // Atualiza usuário também
+        Usuario usuario = cliente.getUsuario();
+        if (usuario != null) {
+            usuario.setUsername(dto.getEmail());
+            usuarioRepository.save(usuario);
+        }
+
+        EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
+        Endereco endereco = enderecoService.buscarOuCriar(enderecoDTO);
+        cliente.setEndereco(endereco);
+
+        Cliente saved = clienteRepository.save(cliente);
+        emailService.enviarNotificacaoCliente(saved, "atualizado");
+        
+        return toDto(saved);
+    }
+
+    public ClienteDTO buscarPorId(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+        return toDto(cliente);
+    }
     
     @Transactional
     public void deletar(Long id) {
-        Cliente c = clienteRepository.findById(id)
+        Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
 
-        c.setAtivo(false);
-        clienteRepository.save(c);
+        cliente.setAtivo(false);
+        clienteRepository.save(cliente);
     }
 
-    private ClienteDTO toDto(Cliente c) {
+    private ClienteDTO toDto(Cliente cliente) {
         ClienteDTO dto = new ClienteDTO();
-        dto.setId(c.getId());
-        dto.setNome(c.getNome());
-        dto.setTelefone(c.getTelefone());
-        dto.setEmail(c.getEmail());
-        dto.setCpf(c.getCpf());
+        dto.setId(cliente.getUsuario() != null ? cliente.getUsuario().getId() : null);
+        dto.setNome(cliente.getNome());
+        dto.setTelefone(cliente.getTelefone());
+        dto.setEmail(cliente.getEmail());
+        dto.setCpf(cliente.getCpf());
 
-        if (c.getEndereco() != null) {
+        if (cliente.getEndereco() != null) {
             EnderecoDTO ed = new EnderecoDTO();
-            ed.setCep(c.getEndereco().getCep());
-            ed.setLogradouro(c.getEndereco().getLogradouro());
-            ed.setComplemento(c.getEndereco().getComplemento());
-            ed.setBairro(c.getEndereco().getBairro());
-            ed.setLocalidade(c.getEndereco().getLocalidade());
-            ed.setUf(c.getEndereco().getUf());
+            ed.setCep(cliente.getEndereco().getCep());
+            ed.setLogradouro(cliente.getEndereco().getLogradouro());
+            ed.setComplemento(cliente.getEndereco().getComplemento());
+            ed.setBairro(cliente.getEndereco().getBairro());
+            ed.setLocalidade(cliente.getEndereco().getLocalidade());
+            ed.setUf(cliente.getEndereco().getUf());
             dto.setEndereco(ed);
         }
 
