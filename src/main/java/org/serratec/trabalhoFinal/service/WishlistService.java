@@ -1,10 +1,12 @@
 package org.serratec.trabalhoFinal.service;
 
 import java.util.List;
+import java.util.stream.Collectors; // Import necessário para usar stream().collect()
 
 import org.serratec.trabalhoFinal.domain.Cliente;
 import org.serratec.trabalhoFinal.domain.Produto;
 import org.serratec.trabalhoFinal.domain.WishlistItem;
+import org.serratec.trabalhoFinal.dto.WishlistResponseDTO; // NOVO IMPORT!
 import org.serratec.trabalhoFinal.exception.NotFoundException;
 import org.serratec.trabalhoFinal.repository.ClienteRepository;
 import org.serratec.trabalhoFinal.repository.ProdutoRepository;
@@ -37,8 +39,7 @@ public class WishlistService {
         
         // 2. Verifica se o item já está na lista
         if (wishlistRepo.findByClienteIdAndProdutoId(clienteId, produtoId).isPresent()) {
-            // Poderia lançar uma exceção de conflito (409) aqui, mas vou retornar o item existente para simplificar
-            throw new IllegalArgumentException("Produto já está na lista de desejos.");
+            throw new IllegalArgumentException("Esse produto já está na sua lista de desejos.");
         }
         
         // 3. Cria e salva o item
@@ -46,15 +47,18 @@ public class WishlistService {
         return wishlistRepo.save(novoItem);
     }
     
-    // --- R (Read) ---
-    public List<WishlistItem> listarProdutos(Long clienteId) {
+    // --- R (Read) - ATUALIZADO PARA RETORNAR WishlistResponseDTO ---
+    public List<WishlistResponseDTO> listarProdutos(Long clienteId) {
         // Verifica se o cliente existe (opcional, mas recomendado)
         if (!clienteRepo.existsById(clienteId)) {
             throw new NotFoundException("Cliente não encontrado");
         }
         
-        // Retorna a lista de itens do cliente
-        return wishlistRepo.findByClienteId(clienteId);
+        // Busca a lista de Entidades e converte para DTO
+        return wishlistRepo.findByClienteId(clienteId)
+                           .stream()
+                           .map(this::toDto) // Chama o novo método de conversão
+                           .collect(Collectors.toList());
     }
     
     // --- D (Delete) ---
@@ -66,5 +70,27 @@ public class WishlistService {
 
         // Remove o item
         wishlistRepo.delete(item);
+    }
+    
+    // --- NOVO MÉTODO: Converte Entidade para DTO de Resposta Simplificado ---
+    private WishlistResponseDTO toDto(WishlistItem item) {
+        WishlistResponseDTO dto = new WishlistResponseDTO();
+        
+        dto.setId(item.getId());
+        
+        // Mapeamento dos dados essenciais do Produto
+        if (item.getProduto() != null) {
+            dto.setProdutoId(item.getProduto().getId());
+            dto.setNomeProduto(item.getProduto().getNome());
+            dto.setPreco(item.getProduto().getPreco());
+            
+            // Mapeamento dos dados essenciais da Categoria
+            if (item.getProduto().getCategoria() != null) {
+                dto.setCategoriaId(item.getProduto().getCategoria().getId());
+                dto.setNomeCategoria(item.getProduto().getCategoria().getNome());
+            }
+        }
+        
+        return dto;
     }
 }
