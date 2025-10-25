@@ -99,3 +99,4 @@ public class Pedido {
         this.cashbackUtilizado = cashbackUtilizado;
     }
 }
+

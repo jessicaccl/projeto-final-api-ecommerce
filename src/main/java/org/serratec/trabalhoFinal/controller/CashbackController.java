@@ -4,7 +4,13 @@ import org.serratec.trabalhoFinal.dto.CashbackDTO;
 import org.serratec.trabalhoFinal.service.CashbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/cashbacks")
@@ -20,11 +26,11 @@ public class CashbackController {
     }
     
 
-    @PostMapping("/creditar/{clienteId}/{valor}") // Adiciona saldo (crédito após um pedido)
+    /*@PostMapping("/adicionar/{clienteId}/{valor}") // Adiciona crédito
     public ResponseEntity<CashbackDTO> creditarCashback(@PathVariable Long clienteId, @PathVariable String valor) {
-        CashbackDTO dto = cashbackService.creditar(clienteId, new java.math.BigDecimal(valor));
+        CashbackDTO dto = cashbackService.adicionar(clienteId, new java.math.BigDecimal(valor), pedido);
         return ResponseEntity.ok(dto);
-    }
+    }*/
 
     @PutMapping("/debitar/{clienteId}/{valor}") // Simulando uso do saldo. Pode ser integrado ao Pedido Service)
     public ResponseEntity<CashbackDTO> debitarCashback(@PathVariable Long clienteId, @PathVariable String valor) {
@@ -38,3 +44,4 @@ public class CashbackController {
         return ResponseEntity.noContent().build();
     }
 }
+
