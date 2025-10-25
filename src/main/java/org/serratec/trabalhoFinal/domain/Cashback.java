@@ -8,7 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 
@@ -20,13 +20,15 @@ public class Cashback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToMany
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
     @DecimalMin(value = "0.0", inclusive = true)
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal saldo = BigDecimal.ZERO;
+    
+  
 
 
     public Cashback() {}
