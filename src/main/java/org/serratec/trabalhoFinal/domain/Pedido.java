@@ -21,81 +21,87 @@ import jakarta.persistence.Table;
 @Table(name = "pedido")
 public class Pedido {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne(optional = false)
-	private Cliente cliente;
+    @ManyToOne(optional = false)
+    private Cliente cliente;
 
-	@Enumerated(EnumType.STRING)
-	private StatusPedido status = StatusPedido.CRIADO;
+    @Enumerated(EnumType.STRING)
+    private StatusPedido status = StatusPedido.CRIADO;
 
-	private LocalDateTime dataCriacao = LocalDateTime.now();
+    private LocalDateTime dataCriacao = LocalDateTime.now();
 
-	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ItemPedido> itens = new ArrayList<>();
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemPedido> itens = new ArrayList<>();
 
-	@Column(precision = 10, scale = 2)
-	private BigDecimal cashbackUtilizado = BigDecimal.ZERO;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal cashbackUtilizado = BigDecimal.ZERO;
 
-	public BigDecimal getTotal() {
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valorTotal = BigDecimal.ZERO;
 
-		BigDecimal subtotal = itens.stream()
-				.map(i -> i.getValorVenda().multiply(new BigDecimal(i.getQuantidade()))
-						.subtract(i.getDesconto() == null ? BigDecimal.ZERO : i.getDesconto()))
-				.reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal getTotal() {
+        return valorTotal.subtract(cashbackUtilizado);
+    }
 
-		return subtotal.subtract(cashbackUtilizado);
-	}
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public StatusPedido getStatus() {
+        return status;
+    }
 
-	public Cliente getCliente() {
-		return cliente;
-	}
+    public void setStatus(StatusPedido status) {
+        this.status = status;
+    }
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
 
-	public StatusPedido getStatus() {
-		return status;
-	}
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
 
-	public void setStatus(StatusPedido status) {
-		this.status = status;
-	}
+    public List<ItemPedido> getItens() {
+        return itens;
+    }
 
-	public LocalDateTime getDataCriacao() {
-		return dataCriacao;
-	}
+    public void setItens(List<ItemPedido> itens) {
+        this.itens = itens;
+    }
 
-	public void setDataCriacao(LocalDateTime dataCriacao) {
-		this.dataCriacao = dataCriacao;
-	}
-
-	public List<ItemPedido> getItens() {
-		return itens;
-	}
-
-	public void setItens(List<ItemPedido> itens) {
-		this.itens = itens;
-	}
-	
-	public BigDecimal getCashbackUtilizado() {
+    public BigDecimal getCashbackUtilizado() {
         return cashbackUtilizado;
     }
 
     public void setCashbackUtilizado(BigDecimal cashbackUtilizado) {
         this.cashbackUtilizado = cashbackUtilizado;
+    }
+
+    public BigDecimal getValorTotal() {
+        return valorTotal;
+    }
+
+    public void setValorTotal(BigDecimal valorTotal) {
+        this.valorTotal = valorTotal;
+    }
+
+    public void setTotal(BigDecimal totalComDesconto) {
     }
 }

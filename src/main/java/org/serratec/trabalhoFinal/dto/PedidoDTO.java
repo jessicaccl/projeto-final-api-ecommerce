@@ -11,6 +11,7 @@ public class PedidoDTO {
     private String dataCriacao;
     private List<ItemPedidoDTO> itens;
     private BigDecimal total;
+    private BigDecimal valorDescontoTotal;
 
     public PedidoDTO() {}
 
@@ -60,5 +61,12 @@ public class PedidoDTO {
 
     public void setTotal(BigDecimal total) {
         this.total = total;
+    }
+    public void setValorDescontoTotal(BigDecimal valorDescontoTotal) {
+        this.valorDescontoTotal = valorDescontoTotal;
+    }
+
+    public BigDecimal getValorDescontoTotal() {
+        return valorDescontoTotal;
     }
 }
