@@ -14,7 +14,7 @@ public class DescontoService {
     public DescontoService(PedidoRepository pedidoRepository) {
         this.pedidoRepository = pedidoRepository;
     }
-    public BigDecimal aplicarDescontoPrimeiroPedido(BigDecimal valorTotalInicial, Long clienteId) {
+    public BigDecimal aplicarDesconto(BigDecimal valorTotalInicial, Long clienteId) {
         boolean clienteJaFezPedido = pedidoRepository.existsByClienteId(clienteId);
 
         if (!clienteJaFezPedido) {

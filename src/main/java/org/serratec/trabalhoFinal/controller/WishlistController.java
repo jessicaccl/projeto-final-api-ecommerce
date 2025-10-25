@@ -3,6 +3,7 @@ package org.serratec.trabalhoFinal.controller;
 import java.util.List;
 
 import org.serratec.trabalhoFinal.domain.WishlistItem;
+import org.serratec.trabalhoFinal.dto.WishlistResponseDTO; // NOVO IMPORT: Para a resposta simplificada!
 import org.serratec.trabalhoFinal.service.WishlistService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class WishlistController {
     }
 
     // Adiciona um produto à lista de desejos (Create)
-    // Ex: POST /clientes/1/wishlist/5 (Adiciona o produto ID 5 ao cliente ID 1)
+    // Retorna a Entidade WishlistItem completa, o que é aceitável, mas você pode mudar para WishlistResponseDTO se preferir.
     @PostMapping("/{produtoId}")
     public ResponseEntity<WishlistItem> adicionar(@PathVariable Long clienteId, @PathVariable Long produtoId) {
         WishlistItem item = service.adicionarProduto(clienteId, produtoId);
@@ -32,10 +33,12 @@ public class WishlistController {
     }
 
     // Lista os produtos na lista de desejos (Read)
+    // AJUSTADO: Agora retorna uma lista de WishlistResponseDTO
     // Ex: GET /clientes/1/wishlist
     @GetMapping
-    public ResponseEntity<List<WishlistItem>> listar(@PathVariable Long clienteId) {
-        List<WishlistItem> lista = service.listarProdutos(clienteId);
+    public ResponseEntity<List<WishlistResponseDTO>> listar(@PathVariable Long clienteId) {
+        // O WishlistService.listarProdutos agora retorna List<WishlistResponseDTO>
+        List<WishlistResponseDTO> lista = service.listarProdutos(clienteId);
         return ResponseEntity.ok(lista);
     }
 

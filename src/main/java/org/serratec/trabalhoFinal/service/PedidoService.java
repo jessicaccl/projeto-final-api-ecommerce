@@ -61,7 +61,7 @@ public class PedidoService {
             totalPedidoBruto = totalPedidoBruto.add(subtotalItem);
         }
 
-        BigDecimal totalComDesconto = descontoService.aplicarDescontoPrimeiroPedido(totalPedidoBruto, cliente.getId());
+        BigDecimal totalComDesconto = descontoService.aplicarDesconto(totalPedidoBruto, cliente.getId());
 
         if (totalComDesconto.compareTo(totalPedidoBruto) < 0) {
             BigDecimal descontoTotal = totalPedidoBruto.subtract(totalComDesconto);
@@ -122,7 +122,7 @@ public class PedidoService {
             totalPedidoBruto = totalPedidoBruto.add(subtotalItem);
         }
 
-        BigDecimal totalComDesconto = descontoService.aplicarDescontoPrimeiroPedido(totalPedidoBruto, cliente.getId());
+        BigDecimal totalComDesconto = descontoService.aplicarDesconto(totalPedidoBruto, cliente.getId());
 
         if (totalComDesconto.compareTo(totalPedidoBruto) < 0) {
             BigDecimal descontoTotal = totalPedidoBruto.subtract(totalComDesconto);
@@ -152,7 +152,7 @@ public class PedidoService {
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
 
         if (novoStatus == StatusPedido.PAGO && pedido.getStatus() != StatusPedido.PAGO) {
-            BigDecimal valorTotalParaCashback = pedido.getValorTotal();  // Corrigido para getValorTotal
+            BigDecimal valorTotalParaCashback = pedido.getValorTotal() != null ? pedido.getValorTotal() : BigDecimal.ZERO;
             cashbackService.creditar(pedido.getCliente().getId(), valorTotalParaCashback);
         }
 
@@ -180,25 +180,33 @@ public class PedidoService {
         dto.setDataCriacao(p.getDataCriacao()
                 .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
 
+        // Evita nulos
         BigDecimal totalBruto = p.getItens().stream()
-                .map(item -> item.getValorVenda().multiply(BigDecimal.valueOf(item.getQuantidade())))
+                .map(item -> item.getValorVenda() != null ? item.getValorVenda().multiply(BigDecimal.valueOf(item.getQuantidade())) : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal totalFinal = p.getValorTotal();  // Use getValorTotal se o campo for valorTotal
+        BigDecimal totalFinal = p.getValorTotal() != null ? p.getValorTotal() : BigDecimal.ZERO;
         BigDecimal valorDescontoTotal = totalBruto.subtract(totalFinal);
 
         List<ItemPedidoDTO> itensDto = p.getItens().stream().map(item -> {
             ItemPedidoDTO idto = new ItemPedidoDTO();
             idto.setProdutoNome(item.getProduto().getNome());
             idto.setQuantidade(item.getQuantidade());
-            idto.setValorUnitario(item.getValorVenda());
-            BigDecimal descontoOriginal = item.getDesconto() == null ? BigDecimal.ZERO : item.getDesconto();
+            idto.setValorUnitario(item.getValorVenda() != null ? item.getValorVenda() : BigDecimal.ZERO);
+
+            BigDecimal descontoOriginal = item.getDesconto() != null ? item.getDesconto() : BigDecimal.ZERO;
             idto.setDesconto(descontoOriginal);
 
-            BigDecimal subtotalSemDesconto = item.getValorVenda().multiply(BigDecimal.valueOf(item.getQuantidade()));
-            BigDecimal descontoProporcional = descontoOriginal.subtract(
-                    subtotalSemDesconto.multiply(valorDescontoTotal).divide(totalBruto, 4, RoundingMode.HALF_UP)
-            );
+            BigDecimal subtotalSemDesconto = (item.getValorVenda() != null ? item.getValorVenda() : BigDecimal.ZERO)
+                    .multiply(BigDecimal.valueOf(item.getQuantidade()));
+
+            BigDecimal descontoProporcional = BigDecimal.ZERO;
+            if (totalBruto.compareTo(BigDecimal.ZERO) > 0) {
+                descontoProporcional = descontoOriginal.subtract(
+                        subtotalSemDesconto.multiply(valorDescontoTotal)
+                                .divide(totalBruto, 4, RoundingMode.HALF_UP)
+                );
+            }
 
             idto.setSubtotal(subtotalSemDesconto.subtract(descontoOriginal));
             return idto;
