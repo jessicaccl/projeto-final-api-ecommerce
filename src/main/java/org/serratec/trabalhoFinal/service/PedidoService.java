@@ -33,79 +33,79 @@ public class PedidoService {
 		this.emailService = emailService;
 	}
 
-	@Transactional
-	public PedidoDTO criar(PedidoCriacaoDTO dto) {
-		Cliente cliente = clienteRepo.findById(dto.getClienteId())
-				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+//	@Transactional
+//	public PedidoDTO criar(PedidoCriacaoDTO dto) {
+//		Cliente cliente = clienteRepo.findById(dto.getClienteId())
+//				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+//
+//		Pedido pedido = new Pedido();
+//		pedido.setCliente(cliente);
+//		pedido.setStatus(StatusPedido.PENDENTE);
+//
+//		if (dto.getUsarCashbackIntegral() != null && dto.getUsarCashbackIntegral()) {
+//			Cashback cashbackEntity = cashbackService.getCashbackByClienteId(cliente.getId());
+//			BigDecimal valorUsadoIntegral = cashbackEntity.getSaldo();
+//
+//			if (valorUsadoIntegral.compareTo(BigDecimal.ZERO) > 0) {
+//
+//				// 2. Debita o valor integral do saldo do cliente
+//				// Estamos usando o saldo TOTAL do objeto cashbackEntity,
+//				// não precisamos do método debitar aqui, mas sim apenas da lógica de baixa.
+//				// Para manter a segurança, vamos usar o debitar do service:
+//
+//				cashbackService.debitar(cliente.getId(), valorUsadoIntegral);
+//				// 3. Registra o valor debitado no pedido (para que getTotal() o deduza)
+//				pedido.setCashbackUtilizado(valorUsadoIntegral);
+//			}
+//		}
+//
+//		for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
+//			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
+//					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
+//
+//			ItemPedido item = new ItemPedido();
+//			item.setPedido(pedido);
+//			item.setProduto(p);
+//			item.setQuantidade(itemDTO.getQuantidade());
+//			item.setValorVenda(p.getPreco());
+//			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
+//			pedido.getItens().add(item);
+//		}
+//
+//		Pedido saved = pedidoRepo.save(pedido);
+//		return toDto(saved);
+//	}
+//
+//	public PedidoDTO buscarPorId(Long id) {
+//		Pedido p = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+//		return toDto(p);
+//	}
 
-		Pedido pedido = new Pedido();
-		pedido.setCliente(cliente);
-		pedido.setStatus(StatusPedido.PENDENTE);
-
-		if (dto.getUsarCashbackIntegral() != null && dto.getUsarCashbackIntegral()) {
-			Cashback cashbackEntity = cashbackService.getCashbackByClienteId(cliente.getId());
-			BigDecimal valorUsadoIntegral = cashbackEntity.getSaldo();
-
-			if (valorUsadoIntegral.compareTo(BigDecimal.ZERO) > 0) {
-
-				// 2. Debita o valor integral do saldo do cliente
-				// Estamos usando o saldo TOTAL do objeto cashbackEntity,
-				// não precisamos do método debitar aqui, mas sim apenas da lógica de baixa.
-				// Para manter a segurança, vamos usar o debitar do service:
-
-				cashbackService.debitar(cliente.getId(), valorUsadoIntegral);
-				// 3. Registra o valor debitado no pedido (para que getTotal() o deduza)
-				pedido.setCashbackUtilizado(valorUsadoIntegral);
-			}
-		}
-
-		for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
-			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
-					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
-
-			ItemPedido item = new ItemPedido();
-			item.setPedido(pedido);
-			item.setProduto(p);
-			item.setQuantidade(itemDTO.getQuantidade());
-			item.setValorVenda(p.getPreco());
-			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
-			pedido.getItens().add(item);
-		}
-
-		Pedido saved = pedidoRepo.save(pedido);
-		return toDto(saved);
-	}
-
-	public PedidoDTO buscarPorId(Long id) {
-		Pedido p = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
-		return toDto(p);
-	}
-
-	@Transactional
-	public PedidoDTO atualizarPedido(Long id, PedidoCriacaoDTO dto) {
-		Pedido pedido = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
-
-		Cliente cliente = clienteRepo.findById(dto.getClienteId())
-				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-		pedido.setCliente(cliente);
-
-		pedido.getItens().clear();
-		for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
-			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
-					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
-
-			ItemPedido item = new ItemPedido();
-			item.setPedido(pedido);
-			item.setProduto(p);
-			item.setQuantidade(itemDTO.getQuantidade());
-			item.setValorVenda(p.getPreco());
-			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
-			pedido.getItens().add(item);
-		}
-
-		Pedido saved = pedidoRepo.save(pedido);
-		return toDto(saved);
-	}
+//	@Transactional
+//	public PedidoDTO atualizarPedido(Long id, PedidoCriacaoDTO dto) {
+//		Pedido pedido = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+//
+//		Cliente cliente = clienteRepo.findById(dto.getClienteId())
+//				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+//		pedido.setCliente(cliente);
+//
+//		pedido.getItens().clear();
+//		for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
+//			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
+//					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
+//
+//			ItemPedido item = new ItemPedido();
+//			item.setPedido(pedido);
+//			item.setProduto(p);
+//			item.setQuantidade(itemDTO.getQuantidade());
+//			item.setValorVenda(p.getPreco());
+//			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
+//			pedido.getItens().add(item);
+//		}
+//
+//		Pedido saved = pedidoRepo.save(pedido);
+//		return toDto(saved);
+//	}
 
 	@Transactional // LOGICA DO CASHBACK!!!!
 	public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
@@ -113,7 +113,7 @@ public class PedidoService {
 		if (novoStatus == StatusPedido.PAGO && pedido.getStatus() != StatusPedido.PAGO) {
 			BigDecimal valorTotalParaCashback = pedido.getTotal();
 
-			cashbackService.adicionar(pedido.getCliente().getId(), valorTotalParaCashback, pedido);
+			cashbackService.adicionar(pedido.getCliente().getId(), valorTotalParaCashback);
 		}
 		pedido.setStatus(novoStatus);
 		Pedido saved = pedidoRepo.save(pedido);
@@ -161,14 +161,17 @@ public class PedidoService {
 		Pedido pedido;
 		if (!pedidoRepo.existsByClienteIdAndStatus(clienteId, StatusPedido.PENDENTE)) {
 			pedido = new Pedido();
+			pedido.setCliente(clienteRepo.findById(clienteId).get());
 		} else {
 			pedido = pedidoRepo.findByClienteIdAndStatus(clienteId, StatusPedido.PENDENTE);
 		}
 
 		pedido.adicionarItem(
 				new ItemPedido(produtoRepo.findById(dto.getProdutoId()).get(), pedido, dto.getQuantidade()));
+		
+		PedidoDTO pedidoDto = toDto(pedidoRepo.save(pedido));
 
-		return new CarrinhoResponseDTO(toDto(pedidoRepo.save(pedido)).getItens(), pedido.getTotal()); //
+		return new CarrinhoResponseDTO(pedidoDto.getItens(), pedido.getTotal()); //
 
 	}
 
@@ -183,11 +186,13 @@ public class PedidoService {
 			BigDecimal saldoCashback = pedido.getCliente().getCarteira();
 			if (saldoCashback.compareTo(totalDoPedido) > 0) { // caso o valor da compra seja inferior ao valor contido
 																// na carteira (cashback)
-				saldoCashback.subtract(totalDoPedido);
-				totalDoPedido.subtract(totalDoPedido);
+				saldoCashback = saldoCashback.subtract(totalDoPedido);
+				totalDoPedido = totalDoPedido.subtract(totalDoPedido);
+				pedido.getCliente().setCarteira(saldoCashback);
 			} else {
-				totalDoPedido.subtract(saldoCashback);
-				saldoCashback.subtract(saldoCashback); // se o pedido for maior qu o cashback eu subtraio tudo
+				totalDoPedido = totalDoPedido.subtract(saldoCashback);
+				saldoCashback = saldoCashback.subtract(saldoCashback); // se o pedido for maior qu o cashback eu subtraio tudo
+				pedido.getCliente().setCarteira(saldoCashback);
 			}
 		}
 		
@@ -198,9 +203,12 @@ public class PedidoService {
 		pedido.setStatus(StatusPedido.PAGO);
 		
 		// enviar email
-		emailService.enviarNotificacaoCashback(pedido, cashback.getSaldo(), pedido.getCliente().getCarteira());
+		emailService.enviarNotificacaoCashback(pedido, cashback.getSaldo(), pedido.getCliente().getCarteira(), totalDoPedido, pedido.getTotal());
 		
-		return toDto(pedidoRepo.save(pedido));  // salva o pedido
+		PedidoDTO dto = toDto(pedidoRepo.save(pedido));
+		dto.setTotal(totalDoPedido);
+		
+		return dto;  // salva o pedido
 
 	}
 

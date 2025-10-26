@@ -1,11 +1,8 @@
 package org.serratec.trabalhoFinal.dto;
 
 import java.util.List;
+
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.List;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.DecimalMin;
 
 public class PedidoCriacaoDTO {
 

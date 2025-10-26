@@ -30,7 +30,7 @@ public class EmailService {
 		}
 	}
 	
-	public void enviarNotificacaoCashback(Pedido pedido, BigDecimal valorCreditado, BigDecimal novoSaldo) {
+	public void enviarNotificacaoCashback(Pedido pedido, BigDecimal valorCreditado, BigDecimal novoSaldo, BigDecimal totalDesconto, BigDecimal totalDoPedido) {
         Cliente cliente = pedido.getCliente();
         
         try {
@@ -41,6 +41,7 @@ public class EmailService {
             String corpoEmail = String.format(
                 "Olá %s,\n\n" +
                 "Parabéns! Seu pedido #%d foi concluído.\n" +
+                "Seu pedido foi de R$ %.2f, mas com o seu cashback, você pagou um total de R$ %.2f.\n" +
                 "Você acaba de ganhar R$ %.2f de Cashback!\n\n" +
                 "Seu novo saldo total de Cashback é de R$ %.2f.\n\n" +
                 "Use seu saldo na próxima compra!\n\n" +
@@ -48,6 +49,8 @@ public class EmailService {
                 "Serratec E-Commerce de Cafés",
                 cliente.getNome(), 
                 pedido.getId(), 
+                totalDoPedido,
+                totalDesconto,
                 valorCreditado, 
                 novoSaldo
             );

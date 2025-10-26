@@ -131,6 +131,6 @@ public class Cliente {
 	}
 	
 	public void aumentarCarteira(Cashback cashback) {
-		this.carteira.add(cashback.getSaldo());
+		this.carteira = this.carteira.add(cashback.getSaldo());
 	}
 }
