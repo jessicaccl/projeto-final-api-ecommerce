@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,19 +27,25 @@ public class Pedido {
     @ManyToOne(optional = false)
     private Cliente cliente;
 
-    @Enumerated(EnumType.STRING)
-    private StatusPedido status = StatusPedido.CRIADO;
+	@Enumerated(EnumType.STRING)
+	private StatusPedido status = StatusPedido.PENDENTE;
 
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens = new ArrayList<>();
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal cashbackUtilizado = BigDecimal.ZERO;
+	
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal valorTotal = BigDecimal.ZERO;
+	public BigDecimal getTotal() {
+
+		BigDecimal subtotal = itens.stream()
+				.map(i -> i.getValorVenda().multiply(new BigDecimal(i.getQuantidade()))
+						.subtract(i.getDesconto() == null ? BigDecimal.ZERO : i.getDesconto()))
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		return subtotal;
+	}
 
     public BigDecimal getTotal() {
         return valorTotal.subtract(cashbackUtilizado);
@@ -86,22 +91,14 @@ public class Pedido {
         this.itens = itens;
     }
 
-    public BigDecimal getCashbackUtilizado() {
-        return cashbackUtilizado;
-    }
-
-    public void setCashbackUtilizado(BigDecimal cashbackUtilizado) {
-        this.cashbackUtilizado = cashbackUtilizado;
-    }
-
-    public BigDecimal getValorTotal() {
-        return valorTotal;
-    }
-
-    public void setValorTotal(BigDecimal valorTotal) {
-        this.valorTotal = valorTotal;
-    }
-
-    public void setTotal(BigDecimal totalComDesconto) {
-    }
+	public void setItens(List<ItemPedido> itens) {
+		this.itens = itens;
+	}
+	
+	public void adicionarItem(ItemPedido item) {
+		this.itens.add(item);
+		
+	}
+	
 }
+

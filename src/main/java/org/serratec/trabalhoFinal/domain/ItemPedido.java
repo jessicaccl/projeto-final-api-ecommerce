@@ -28,13 +28,25 @@ public class ItemPedido {
 	private Pedido pedido;
 	
 	@DecimalMin("0.0")
-	private BigDecimal valorVenda;
+	private BigDecimal valorVenda = BigDecimal.ZERO;
 	
 	@DecimalMin("0.0")
-	private BigDecimal desconto;
+	private BigDecimal desconto = BigDecimal.ZERO;
 	
 	@Min(1)
 	private Integer quantidade;
+	
+	
+	
+	public ItemPedido() {}	
+	
+	
+	public ItemPedido(Produto produto, Pedido pedido, Integer quantidade) {
+		this.produto = produto;
+		this.pedido = pedido;
+		this.quantidade = quantidade;
+		this.valorVenda = produto.getPreco();
+	}
 
 	public Long getId() {
 		return id;

@@ -1,7 +1,5 @@
 package org.serratec.trabalhoFinal.dto;
 
-import java.math.BigDecimal;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,10 +11,17 @@ public class ItemPedidoCriacaoDTO {
     @NotNull
     @Min(1)
     private Integer quantidade;
+    
+    
 
-    private BigDecimal desconto;
 
-    public Long getProdutoId() {
+    public ItemPedidoCriacaoDTO(@NotNull Long produtoId, @NotNull @Min(1) Integer quantidade) {
+		super();
+		this.produtoId = produtoId;
+		this.quantidade = quantidade;
+	}
+
+	public Long getProdutoId() {
         return produtoId;
     }
 
@@ -32,11 +37,6 @@ public class ItemPedidoCriacaoDTO {
         this.quantidade = quantidade;
     }
 
-    public BigDecimal getDesconto() {
-        return desconto;
-    }
 
-    public void setDesconto(BigDecimal desconto) {
-        this.desconto = desconto;
-    }
+    
 }
