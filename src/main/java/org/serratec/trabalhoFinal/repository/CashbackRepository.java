@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CashbackRepository extends JpaRepository<Cashback, Long> {
    Optional<Cashback> findByClienteId(Long clienteId);
    
-   List<Cashback> findByClienteIdAndIsActiveTrue(Long clienteId);
+   List<Cashback> findByClienteIdAndIsActiveTrueOrderByDataVencimentoDesc(Long clienteId);
 }

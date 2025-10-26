@@ -202,11 +202,13 @@ public class PedidoService {
 		// alterar status
 		pedido.setStatus(StatusPedido.PAGO);
 		
+		
 		// enviar email
 		emailService.enviarNotificacaoCashback(pedido, cashback.getSaldo(), pedido.getCliente().getCarteira(), totalDoPedido, pedido.getTotal());
 		
 		PedidoDTO dto = toDto(pedidoRepo.save(pedido));
 		dto.setTotal(totalDoPedido);
+		cashbackService.desativarCashbackUsado(pedido.getCliente());
 		
 		return dto;  // salva o pedido
 

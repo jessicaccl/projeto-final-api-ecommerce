@@ -46,7 +46,7 @@ public class EmailService {
                 "Seu novo saldo total de Cashback é de R$ %.2f.\n\n" +
                 "Use seu saldo na próxima compra!\n\n" +
                 "Atenciosamente,\n" +
-                "Serratec E-Commerce de Cafés",
+                "SerraBucks - E-Commerce de Cafés",
                 cliente.getNome(), 
                 pedido.getId(), 
                 totalDoPedido,
@@ -62,6 +62,61 @@ public class EmailService {
             System.err.println("Falha ao enviar e-mail de Cashback: " + e.getMessage());
         }
     }
+
+	public void cashbackAVencer(Cliente c, BigDecimal saldoAVencer) {
+		
+		try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setTo(c.getEmail());
+            msg.setSubject("Seu cashback está vencendo!");
+            
+            String corpoEmail = String.format(
+                "Olá %s,\n\n" +
+                "Você tem um saldo de cashback de R$ %.2f que vence amanhã.\n\n" +
+                "Corra para comprar e não perder seu beneficio!\n\n" +
+               
+                "Atenciosamente,\n" +
+                "SerraBucks - E-Commerce de Cafés",
+                c.getNome(), 
+                saldoAVencer
+            );
+            
+            msg.setText(corpoEmail);
+            mailSender.send(msg);
+            System.out.println("E-mail de Cashback enviado para " + c.getEmail());
+        } catch (Exception e) {
+            System.err.println("Falha ao enviar e-mail de Cashback: " + e.getMessage());
+        }
+		
+	}
+
+	public void notificarCashbackVencido(Cliente c, BigDecimal cashbackVencido) {
+		
+		try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setTo(c.getEmail());
+            msg.setSubject("Seu cashback venceu...");
+            
+            String corpoEmail = String.format(
+                "Olá %s,\n\n" +
+                "Seu saldo de cashback de R$ %.2f venceu :( \n\n" +
+                "Mas não desanime, você ainda tem R$ %.2f de saldo para gastar!\n\n" +
+                "Confira nossos produtos disponíveis." +
+                "Atenciosamente,\n" +
+                "SerraBucks - E-Commerce de Cafés",
+                c.getNome(), 
+                cashbackVencido,
+                c.getCarteira()
+            );
+            
+            msg.setText(corpoEmail);
+            mailSender.send(msg);
+            System.out.println("E-mail de Cashback enviado para " + c.getEmail());
+        } catch (Exception e) {
+            System.err.println("Falha ao enviar e-mail de Cashback: " + e.getMessage());
+        }
+		
+	}
 }
 	
 

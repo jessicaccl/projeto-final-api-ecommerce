@@ -72,11 +72,11 @@ public class Cashback {
         this.saldo = saldo;
     }
 
-	public LocalDateTime getDate() {
+	public LocalDateTime getDataVencimento() {
 		return dataVencimento;
 	}
 
-	public void setDate(LocalDateTime date) {
+	public void setDataVencimento(LocalDateTime date) {
 		this.dataVencimento = date;
 	}
 
