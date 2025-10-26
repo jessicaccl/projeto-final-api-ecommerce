@@ -1,6 +1,9 @@
 package org.serratec.trabalhoFinal.domain;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -35,9 +38,11 @@ public class Cliente {
     @Column(nullable = false, columnDefinition = "boolean default true")
     private Boolean ativo = true;
     
-    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Cashback cashback;
-
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal carteira = BigDecimal.ZERO; 
+    
+    
     public Cliente() {}
 
     public Cliente(Long id, String nome, String telefone, String email, String cpf, Endereco endereco, String senha) {
@@ -49,8 +54,9 @@ public class Cliente {
         this.endereco = endereco;
         this.senha = senha;
         this.ativo = true;
-        this.cashback = new Cashback(this);
     }
+
+	
 
 	public Long getId() {
 		return id;
@@ -116,11 +122,15 @@ public class Cliente {
 		this.ativo = ativo;
 	}
 	
-	public Cashback getCashback() {
-        return cashback;
-    }
+	public BigDecimal getCarteira() {
+		return carteira;
+	}
 
-    public void setCashback(Cashback cashback) {
-        this.cashback = cashback;
-    }
+	public void setCarteira(BigDecimal carteira) {
+		this.carteira = carteira;
+	}
+	
+	public void aumentarCarteira(Cashback cashback) {
+		this.carteira.add(cashback.getSaldo());
+	}
 }

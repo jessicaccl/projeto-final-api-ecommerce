@@ -11,8 +11,21 @@ public class ItemPedidoDTO {
     private BigDecimal subtotal;
 
     public ItemPedidoDTO() {}
+    
+    
 
-    public String getProdutoNome() {
+    public ItemPedidoDTO(String produtoNome, Integer quantidade, BigDecimal valorUnitario, BigDecimal desconto,
+			BigDecimal subtotal) {
+		this.produtoNome = produtoNome;
+		this.quantidade = quantidade;
+		this.valorUnitario = valorUnitario;
+		this.desconto = desconto;
+		this.subtotal = subtotal;
+	}
+
+
+
+	public String getProdutoNome() {
         return produtoNome;
     }
 

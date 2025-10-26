@@ -36,6 +36,16 @@ public class ItemPedido {
 	@Min(1)
 	private Integer quantidade;
 
+	
+	
+	
+	
+	public ItemPedido(Produto produto, Pedido pedido, @Min(1) Integer quantidade) {
+		this.produto = produto;
+		this.pedido = pedido;
+		this.quantidade = quantidade;
+	}
+
 	public Long getId() {
 		return id;
 	}

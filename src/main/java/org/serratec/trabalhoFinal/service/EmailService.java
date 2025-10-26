@@ -40,7 +40,7 @@ public class EmailService {
             
             String corpoEmail = String.format(
                 "Olá %s,\n\n" +
-                "Parabéns! Seu pedido #%d foi confirmado como PAGO.\n" +
+                "Parabéns! Seu pedido #%d foi concluído.\n" +
                 "Você acaba de ganhar R$ %.2f de Cashback!\n\n" +
                 "Seu novo saldo total de Cashback é de R$ %.2f.\n\n" +
                 "Use seu saldo na próxima compra!\n\n" +
