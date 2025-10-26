@@ -20,20 +20,20 @@ import jakarta.persistence.Table;
 @Table(name = "pedido")
 public class Pedido {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne(optional = false)
-	private Cliente cliente;
+    @ManyToOne(optional = false)
+    private Cliente cliente;
 
 	@Enumerated(EnumType.STRING)
 	private StatusPedido status = StatusPedido.PENDENTE;
 
-	private LocalDateTime dataCriacao = LocalDateTime.now();
+    private LocalDateTime dataCriacao = LocalDateTime.now();
 
-	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ItemPedido> itens = new ArrayList<>();
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemPedido> itens = new ArrayList<>();
 
 	
 
@@ -47,43 +47,49 @@ public class Pedido {
 		return subtotal;
 	}
 
+    public BigDecimal getTotal() {
+        return valorTotal.subtract(cashbackUtilizado);
+    }
 
+    public Long getId() {
+        return id;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-	public Cliente getCliente() {
-		return cliente;
-	}
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
+    public StatusPedido getStatus() {
+        return status;
+    }
 
-	public StatusPedido getStatus() {
-		return status;
-	}
+    public void setStatus(StatusPedido status) {
+        this.status = status;
+    }
 
-	public void setStatus(StatusPedido status) {
-		this.status = status;
-	}
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
 
-	public LocalDateTime getDataCriacao() {
-		return dataCriacao;
-	}
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
 
-	public void setDataCriacao(LocalDateTime dataCriacao) {
-		this.dataCriacao = dataCriacao;
-	}
+    public List<ItemPedido> getItens() {
+        return itens;
+    }
 
-	public List<ItemPedido> getItens() {
-		return itens;
-	}
+    public void setItens(List<ItemPedido> itens) {
+        this.itens = itens;
+    }
 
 	public void setItens(List<ItemPedido> itens) {
 		this.itens = itens;

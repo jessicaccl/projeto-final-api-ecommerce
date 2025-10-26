@@ -38,25 +38,32 @@ public class Cliente {
     @Column(nullable = false, columnDefinition = "boolean default true")
     private Boolean ativo = true;
     
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
+    
     @DecimalMin(value = "0.0", inclusive = true)
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal carteira = BigDecimal.ZERO; 
-    
-    
+    private BigDecimal carteira = BigDecimal.ZERO;
+
     public Cliente() {}
 
-    public Cliente(Long id, String nome, String telefone, String email, String cpf, Endereco endereco, String senha) {
-        this.id = id;
-        this.nome = nome;
-        this.telefone = telefone;
-        this.email = email;
-        this.cpf = cpf;
-        this.endereco = endereco;
-        this.senha = senha;
-        this.ativo = true;
-    }
+	  public Cliente(Long id, @NotBlank String nome, @NotBlank String telefone, @NotBlank @Email String email,
+			@NotBlank String senha, @NotBlank String cpf, Endereco endereco, Boolean ativo, Usuario usuario,
+			BigDecimal carteira) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.telefone = telefone;
+		this.email = email;
+		this.senha = senha;
+		this.cpf = cpf;
+		this.endereco = endereco;
+		this.ativo = ativo;
+		this.usuario = usuario;
+		this.carteira = carteira;
+	}
 
-	
 
 	public Long getId() {
 		return id;
@@ -125,12 +132,22 @@ public class Cliente {
 	public BigDecimal getCarteira() {
 		return carteira;
 	}
-
-	public void setCarteira(BigDecimal carteira) {
+  
+  public void setCarteira(BigDecimal carteira) {
 		this.carteira = carteira;
 	}
 	
 	public void aumentarCarteira(Cashback cashback) {
 		this.carteira = this.carteira.add(cashback.getSaldo());
 	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+    
+    
 }
