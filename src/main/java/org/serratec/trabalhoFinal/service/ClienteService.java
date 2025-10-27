@@ -59,7 +59,7 @@ public class ClienteService {
     	cliente.setSenha(passwordEncoder.encode(dto.getSenha()));
     	cliente.setCpf(dto.getCpf());
     	cliente.setUsuario(usuario);
-    	usuario.setCliente(cliente); 
+    	usuario.setCliente(cliente);
 
     	Endereco endereco = new Endereco();
     	if (dto.getCep() != null) {
@@ -123,7 +123,7 @@ public class ClienteService {
         dto.setCpf(cliente.getCpf());
         
         if (cliente.getUsuario() != null) {
-            dto.setRole(cliente.getUsuario().getRole().replace("ROLE_", ""));
+            dto.setRole(cliente.getUsuario().getRole());
         }
 
         if (cliente.getEndereco() != null) {
