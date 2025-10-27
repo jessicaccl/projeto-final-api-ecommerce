@@ -2,32 +2,32 @@ package org.serratec.trabalhoFinal.dto;
 
 public class EstoqueDTO {
 
-	private Long Id;
-	private String Nome;
+	private Long id;
+	private String nome;
 	private Integer quantidade;
 	
 	public EstoqueDTO() {}
 
 	public EstoqueDTO(Long id, String nome, Integer quantidade) {
-		Id = id;
-		Nome = nome;
+		this.id = id;
+		this.nome = nome;
 		this.quantidade = quantidade;
 	}
 
 	public Long getId() {
-		return Id;
+		return id;
 	}
 
 	public void setId(Long id) {
-		Id = id;
+		this.id = id;
 	}
 
 	public String getNome() {
-		return Nome;
+		return nome;
 	}
 
 	public void setNome(String nome) {
-		Nome = nome;
+		this.nome = nome;
 	}
 
 	public Integer getQuantidade() {

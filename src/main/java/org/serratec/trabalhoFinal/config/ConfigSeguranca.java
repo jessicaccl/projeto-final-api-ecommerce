@@ -40,17 +40,7 @@ public class ConfigSeguranca {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/login").permitAll()
-                .requestMatchers("/clientes/**").permitAll()
-                .requestMatchers("/produtos/**").permitAll()
-                .requestMatchers("/categorias/**").permitAll()
-                .requestMatchers("/enderecos/**").permitAll()
-                .requestMatchers("/estoque/**").permitAll()
-                .requestMatchers("/usuarios/**").permitAll()
-                .requestMatchers("/funcionarios/**").permitAll()
-                .requestMatchers("/pedidos/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/**").permitAll() // libera todos os endpoints
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

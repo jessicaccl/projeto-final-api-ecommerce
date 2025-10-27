@@ -1,5 +1,7 @@
 package org.serratec.trabalhoFinal.service;
 
+import java.util.List;
+
 import org.serratec.trabalhoFinal.domain.Funcionario;
 import org.serratec.trabalhoFinal.domain.Usuario;
 import org.serratec.trabalhoFinal.repository.FuncionarioRepository;
@@ -23,6 +25,10 @@ public class FuncionarioService {
 		this.passwordEncoder = passwordEncoder;
 		this.emailService = emailService;
 	}
+    
+    public List<Funcionario> listarTodosEntidades() {
+        return funcionarioRepository.findAll();
+    }
 
 	public Funcionario cadastrarFuncionario(Funcionario funcionario) {
         Usuario usuario = new Usuario();
@@ -36,6 +42,6 @@ public class FuncionarioService {
         Funcionario saved = funcionarioRepository.save(funcionario);
         emailService.enviarNotificacaoFuncionario(saved, "Criado");
 
-        return funcionarioRepository.save(funcionario);
+        return saved;
     }
 }
