@@ -58,13 +58,10 @@ public class PedidoService {
 			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
 					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
 
-<<<<<<< Updated upstream
 			if(!estoqueService.verificarEstoque(p.getId(), itemDTO.getQuantidade())) {
 				throw new RuntimeException("Estoque insuficiente para o produto: " + p.getNome());
 			}
 			
-=======
->>>>>>> Stashed changes
 			estoqueService.darBaixaEstoque(p.getId(), itemDTO.getQuantidade());
 			
 			ItemPedido item = new ItemPedido();
