@@ -56,7 +56,6 @@ public class ClienteService {
     	cliente.setNome(dto.getNome());
     	cliente.setTelefone(dto.getTelefone());
     	cliente.setEmail(dto.getEmail());
-    	cliente.setSenha(passwordEncoder.encode(dto.getSenha()));
     	cliente.setCpf(dto.getCpf());
     	cliente.setUsuario(usuario);
     	usuario.setCliente(cliente);
@@ -89,9 +88,11 @@ public class ClienteService {
             usuarioRepository.save(usuario);
         }
 
-        EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
-        Endereco endereco = enderecoService.buscarOuCriar(enderecoDTO);
-        cliente.setEndereco(endereco);
+        if (dto.getCep() != null) {
+            EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
+            Endereco endereco = enderecoService.buscarOuCriar(enderecoDTO);
+            cliente.setEndereco(endereco);
+        }
 
         Cliente saved = clienteRepository.save(cliente);
         emailService.enviarNotificacaoCliente(saved, "atualizado");

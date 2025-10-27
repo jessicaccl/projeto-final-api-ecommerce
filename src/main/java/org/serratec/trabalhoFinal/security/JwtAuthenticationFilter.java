@@ -2,14 +2,18 @@ package org.serratec.trabalhoFinal.security;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
 import org.serratec.trabalhoFinal.dto.LoginDTO;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +53,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((UserDetails) authResult.getPrincipal()).getUsername();
         String token = jwtUtil.generateToken(username);
 
+        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        response.addHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
         response.setContentType("application/json");
         response.getWriter().write("{\"token\": \"" + token + "\"}");
         response.getWriter().flush();

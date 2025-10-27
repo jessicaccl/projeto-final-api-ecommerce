@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,34 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
+	@ExceptionHandler(EmailException.class)
+    public ResponseEntity<ErrorResponse> handleEmail(EmailException ex, HttpServletRequest request) {
+        System.out.println("EmailException: " + ex.getMessage());
+        // Erro de serviço externo para envio de e-mail pode ser BAD_GATEWAY ou INTERNAL_SERVER_ERROR
+        ErrorResponse body = buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro no Serviço de E-mail", ex.getMessage(), request.getRequestURI(), null);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+	
+	@ExceptionHandler(SenhaException.class)
+    public ResponseEntity<ErrorResponse> handleSenha(SenhaException ex, HttpServletRequest request) {
+        System.out.println("SenhaException: " + ex.getMessage());
+        ErrorResponse body = buildError(HttpStatus.BAD_REQUEST, "Erro de Segurança", ex.getMessage(), request.getRequestURI(), null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+	
+	@ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
+        System.out.println("DataIntegrityViolationException: " + ex.getMessage());
+        ErrorResponse body = buildError(
+                HttpStatus.CONFLICT,
+                "Conflito de Dados",
+                "O registro não pôde ser salvo pois já existe no sistema (Ex: CPF ou E-mail duplicado).",
+                request.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+	
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException ex, HttpServletRequest request) {
         System.out.println("NotFoundException: " + ex.getMessage());
