@@ -1,4 +1,4 @@
-package Utils;
+package org.serratec.trabalhoFinal.utils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -7,9 +7,11 @@ import org.serratec.trabalhoFinal.domain.Cliente;
 import org.serratec.trabalhoFinal.repository.ClienteRepository;
 import org.serratec.trabalhoFinal.service.CashbackService;
 import org.serratec.trabalhoFinal.service.EmailService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Lazy(false)
 @Component
 public class TarefasAgendadas {
 
@@ -27,9 +29,9 @@ public class TarefasAgendadas {
 	public void executarTarefasRecorrentes() {
 
 		List<Cliente> allClientes = clienteRepo.findAll();
-
+				
 		for (Cliente c : allClientes) {
-
+			
 			// Notificação antes do vencimento
 			BigDecimal saldoAVencer = cashbackService.calcularSaldoAVencer(c);
 			if (saldoAVencer.compareTo(BigDecimal.ZERO) > 0) {
@@ -44,5 +46,6 @@ public class TarefasAgendadas {
 		}
 
 	}
+	
 
 }

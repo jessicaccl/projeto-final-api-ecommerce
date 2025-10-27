@@ -23,14 +23,14 @@ public class CashbackController {
     @Autowired
     private CashbackService cashbackService;
     
-    @GetMapping("/cliente/{clienteId}")          // Busca registros de cashbacks ATIVOS de um cliente
+    @GetMapping("/cliente/{clienteId}")          // ----- Busca registros de cashbacks ATIVOS de um cliente
     public ResponseEntity<List<CashbackResponseDTO>> buscarPorCliente(@PathVariable Long clienteId) {
         List<CashbackResponseDTO> listDto = cashbackService.buscarPorClienteId(clienteId);
         return ResponseEntity.ok(listDto);
     }
     
 
-    @PostMapping("/adicionar/{clienteId}") // Adiciona crédito
+    @PostMapping("/adicionar/{clienteId}") // ----- Adiciona crédito
     public ResponseEntity<CashbackDTO> creditarCashback(@PathVariable Long clienteId, @RequestBody String valor) {
         CashbackDTO dto = cashbackService.adicionar(clienteId, new java.math.BigDecimal(valor));
         return ResponseEntity.ok(dto);

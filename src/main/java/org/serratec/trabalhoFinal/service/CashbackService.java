@@ -1,8 +1,8 @@
 package org.serratec.trabalhoFinal.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +96,7 @@ public class CashbackService {
 // ----- método para calcular saldo a vencer - deduzir cupons ativos e calcular resto do último
 
 	public BigDecimal calcularSaldoAVencer(Cliente cliente) {
+		LocalDate hoje = LocalDate.now();
 		desativarCashbackUsado(cliente);
 		List<Cashback> listaCashback = cashbackRepo
 				.findByClienteIdAndIsActiveTrueOrderByDataVencimentoDesc(cliente.getId());
@@ -105,8 +106,8 @@ public class CashbackService {
 		BigDecimal saldoAVencer = BigDecimal.ZERO;
 
 		for (Cashback c : listaCashback) {
-			if (ChronoUnit.DAYS.between(c.getDataVencimento(), LocalDateTime.now()) < 1
-					&& ChronoUnit.DAYS.between(c.getDataVencimento(), LocalDateTime.now()) > 0) {
+			LocalDate dataVenc = c.getDataVencimento().toLocalDate(); 
+			if (dataVenc.equals(hoje.plusDays(1))) {
 				saldo = saldo.subtract(c.getSaldo());
 				saldoAVencer = saldoAVencer.add(c.getSaldo());
 			} else {
@@ -147,19 +148,20 @@ public class CashbackService {
 
 	}
 	
-	public void creditar(Long clienteId, BigDecimal valor) {
-	    Cliente cliente = clienteRepo.findById(clienteId)
-	            .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-	    
-	    Cashback cashback = new Cashback(cliente, valor); // cria cashback com o valor
-	    cliente.aumentarCarteira(cashback);             // usa o método existente
-	    cashbackRepo.save(cashback);                    // salva o cashback no banco
-	    clienteRepo.save(cliente);                      // atualiza cliente
-	}
+	// --------- já existe um método para isso (ganharCashback) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ------------------------
+	
+//	public void creditar(Long clienteId, BigDecimal valor) {
+//	    Cliente cliente = clienteRepo.findById(clienteId)
+//	            .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+//	    
+//	    Cashback cashback = new Cashback(cliente, valor); // cria cashback com o valor
+//	    cliente.aumentarCarteira(cashback);             // usa o método existente
+//	    cashbackRepo.save(cashback);                    // salva o cashback no banco
+//	    clienteRepo.save(cliente);                      // atualiza cliente
+//	}
 
 
-// scheduled para avisar vencimento
+	// ----- scheduled para avisar o vencimento e vencimento automático -> ver tarefas agendadas
 
-//scheduled para vencimento automático
 
 }

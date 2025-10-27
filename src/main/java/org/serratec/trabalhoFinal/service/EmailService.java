@@ -91,7 +91,7 @@ public class EmailService {
             String corpoEmail = String.format(
                 "Olá %s,\n\n" +
                 "Você tem um saldo de cashback de R$ %.2f que vence amanhã.\n\n" +
-                "Corra para comprar e não perder seu beneficio!\n\n" +
+                "Corra para o nosso site, aproveite as novidades e não perca seu beneficio!\n\n" +
                
                 "Atenciosamente,\n" +
                 "SerraBucks - E-Commerce de Cafés",
@@ -119,7 +119,7 @@ public class EmailService {
                 "Olá %s,\n\n" +
                 "Seu saldo de cashback de R$ %.2f venceu :( \n\n" +
                 "Mas não desanime, você ainda tem R$ %.2f de saldo para gastar!\n\n" +
-                "Confira nossos produtos disponíveis." +
+                "Confira nossos produtos disponíveis.\n\n" +
                 "Atenciosamente,\n" +
                 "SerraBucks - E-Commerce de Cafés",
                 c.getNome(), 
