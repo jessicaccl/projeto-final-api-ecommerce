@@ -59,6 +59,7 @@ public class PedidoService {
 					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
 
 			if (!estoqueService.verificarEstoque(p.getId(), itemDTO.getQuantidade())) {
+
 				throw new RuntimeException("Estoque insuficiente para o produto: " + p.getNome());
 			}
 
