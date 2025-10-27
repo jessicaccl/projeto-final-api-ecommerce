@@ -1,6 +1,5 @@
 package org.serratec.trabalhoFinal.service;
 
-import java.util.Optional;
 import org.serratec.trabalhoFinal.domain.Cliente;
 import org.serratec.trabalhoFinal.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;

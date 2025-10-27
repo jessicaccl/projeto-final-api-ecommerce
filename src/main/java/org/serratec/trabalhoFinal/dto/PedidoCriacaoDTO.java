@@ -1,8 +1,9 @@
 package org.serratec.trabalhoFinal.dto;
 
 import java.util.List;
-
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import jakarta.validation.constraints.DecimalMin;
 
 public class PedidoCriacaoDTO {
 
@@ -16,8 +17,6 @@ public class PedidoCriacaoDTO {
     private BigDecimal cashbackUtilizado = BigDecimal.ZERO;*/
     
     private Boolean usarCashbackIntegral = false;
-    
-    
 
     public Long getClienteId() {
         return clienteId;
@@ -50,7 +49,4 @@ public class PedidoCriacaoDTO {
     public void setUsarCashbackIntegral(Boolean usarCashbackIntegral) {
         this.usarCashbackIntegral = usarCashbackIntegral;
     }
-    
 }
-
-

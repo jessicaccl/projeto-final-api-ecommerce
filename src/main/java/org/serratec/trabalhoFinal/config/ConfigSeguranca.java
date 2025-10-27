@@ -41,17 +41,18 @@ public class ConfigSeguranca {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-            	.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/clientes").permitAll()
-                .requestMatchers(HttpMethod.GET, "/produtos").permitAll()
-                .requestMatchers(HttpMethod.GET, "/categorias").permitAll()
-                .requestMatchers(HttpMethod.GET, "/enderecos/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
-                .requestMatchers(HttpMethod.GET, "/pedidos/{id}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/usuarios/{id}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/clientes/{id}").hasAnyRole("ADMIN", "USER")
-                .anyRequest().authenticated())
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/login").permitAll()
+                .requestMatchers("/clientes/**").permitAll()
+                .requestMatchers("/produtos/**").permitAll()
+                .requestMatchers("/categorias/**").permitAll()
+                .requestMatchers("/enderecos/**").permitAll()
+                .requestMatchers("/estoque/**").permitAll()
+                .requestMatchers("/usuarios/**").permitAll()
+                .requestMatchers("/funcionarios/**").permitAll()
+                .requestMatchers("/pedidos/**").permitAll()
+                .anyRequest().authenticated()
+            )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
@@ -67,6 +68,7 @@ public class ConfigSeguranca {
 
         return http.build();
     }
+
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
@@ -84,6 +86,4 @@ public class ConfigSeguranca {
     public BCryptPasswordEncoder bcryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
-    
 }

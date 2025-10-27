@@ -1,6 +1,5 @@
 package org.serratec.trabalhoFinal.dto;
 
-
 public class UsuarioDTO {
 	
     private String username;
