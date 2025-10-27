@@ -148,18 +148,20 @@ public class CashbackService {
 
 	}
 	
-	public void creditar(Long clienteId, BigDecimal valor) {
-	    Cliente cliente = clienteRepo.findById(clienteId)
-	            .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-	    
-	    Cashback cashback = new Cashback(cliente, valor); // cria cashback com o valor
-	    cliente.aumentarCarteira(cashback);             // usa o método existente
-	    cashbackRepo.save(cashback);                    // salva o cashback no banco
-	    clienteRepo.save(cliente);                      // atualiza cliente
-	}
+	// --------- já existe um método para isso (ganharCashback) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ------------------------
+	
+//	public void creditar(Long clienteId, BigDecimal valor) {
+//	    Cliente cliente = clienteRepo.findById(clienteId)
+//	            .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+//	    
+//	    Cashback cashback = new Cashback(cliente, valor); // cria cashback com o valor
+//	    cliente.aumentarCarteira(cashback);             // usa o método existente
+//	    cashbackRepo.save(cashback);                    // salva o cashback no banco
+//	    clienteRepo.save(cliente);                      // atualiza cliente
+//	}
 
 
-// ----- scheduled para avisar o vencimento e vencimento automático -> ver tarefas agendadas
+	// ----- scheduled para avisar o vencimento e vencimento automático -> ver tarefas agendadas
 
 
 }

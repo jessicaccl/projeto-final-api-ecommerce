@@ -89,22 +89,22 @@ public class PedidoService {
 				.collect(Collectors.toList());
 	}
 	
-	@Transactional 
-    public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
-        Pedido pedido = pedidoRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
-        
-           if (novoStatus == StatusPedido.PAGO && pedido.getStatus() != StatusPedido.PAGO) {
-            BigDecimal valorTotalParaCashback = pedido.getTotal(); 
-            cashbackService.creditar(pedido.getCliente().getId(), valorTotalParaCashback);
-        } else if (novoStatus == StatusPedido.CANCELADO && pedido.getStatus() == StatusPedido.PAGO) {
-        	
-        }
-        
-        pedido.setStatus(novoStatus);
-        Pedido saved = pedidoRepo.save(pedido);
-        return toDto(saved);
-    }
+	@Transactional // -------- JÁ EXISTE UM MÉTODO NESSA CLASSE PARA CONCLUSÃO DE PEDIDO -------------
+//    public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
+//        Pedido pedido = pedidoRepo.findById(id)
+//                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+//        
+//           if (novoStatus == StatusPedido.PAGO && pedido.getStatus() != StatusPedido.PAGO) {
+//            BigDecimal valorTotalParaCashback = pedido.getTotal(); 
+//            cashbackService.creditar(pedido.getCliente().getId(), valorTotalParaCashback);
+//        } else if (novoStatus == StatusPedido.CANCELADO && pedido.getStatus() == StatusPedido.PAGO) {
+//        	
+//        }
+//        
+//        pedido.setStatus(novoStatus);
+//        Pedido saved = pedidoRepo.save(pedido);
+//        return toDto(saved);
+//    }
 
 	public void deletar(Long id) {
 		if (!pedidoRepo.existsById(id)) {
