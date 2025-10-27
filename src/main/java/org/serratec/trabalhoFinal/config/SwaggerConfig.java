@@ -1,7 +1,5 @@
 package org.serratec.trabalhoFinal.config;
 
-import java.util.List;
-
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

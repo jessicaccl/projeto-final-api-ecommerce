@@ -3,7 +3,6 @@ package org.serratec.trabalhoFinal.service;
 import org.serratec.trabalhoFinal.domain.Estoque;
 import org.serratec.trabalhoFinal.domain.Produto;
 import org.serratec.trabalhoFinal.dto.EstoqueDTO;
-import org.serratec.trabalhoFinal.exception.NotFoundException;
 import org.serratec.trabalhoFinal.repository.EstoqueRepository;
 import org.springframework.stereotype.Service;
 

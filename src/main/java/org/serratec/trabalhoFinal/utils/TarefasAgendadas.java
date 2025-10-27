@@ -1,9 +1,7 @@
 package org.serratec.trabalhoFinal.utils;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.serratec.trabalhoFinal.domain.Cliente;
 import org.serratec.trabalhoFinal.repository.ClienteRepository;
