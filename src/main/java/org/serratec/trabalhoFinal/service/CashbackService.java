@@ -1,6 +1,7 @@
 package org.serratec.trabalhoFinal.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -96,6 +97,7 @@ public class CashbackService {
 // ----- método para calcular saldo a vencer - deduzir cupons ativos e calcular resto do último
 
 	public BigDecimal calcularSaldoAVencer(Cliente cliente) {
+		LocalDate hoje = LocalDate.now();
 		desativarCashbackUsado(cliente);
 		List<Cashback> listaCashback = cashbackRepo
 				.findByClienteIdAndIsActiveTrueOrderByDataVencimentoDesc(cliente.getId());
@@ -105,8 +107,8 @@ public class CashbackService {
 		BigDecimal saldoAVencer = BigDecimal.ZERO;
 
 		for (Cashback c : listaCashback) {
-			if (ChronoUnit.DAYS.between(c.getDataVencimento(), LocalDateTime.now()) < 1
-					&& ChronoUnit.DAYS.between(c.getDataVencimento(), LocalDateTime.now()) > 0) {
+			LocalDate dataVenc = c.getDataVencimento().toLocalDate(); 
+			if (dataVenc.equals(hoje.plusDays(1))) {
 				saldo = saldo.subtract(c.getSaldo());
 				saldoAVencer = saldoAVencer.add(c.getSaldo());
 			} else {
@@ -158,8 +160,7 @@ public class CashbackService {
 	}
 
 
-// scheduled para avisar vencimento
+// ----- scheduled para avisar o vencimento e vencimento automático -> ver tarefas agendadas
 
-//scheduled para vencimento automático
 
 }

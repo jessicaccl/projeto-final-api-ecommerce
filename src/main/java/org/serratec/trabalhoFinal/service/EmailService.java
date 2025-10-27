@@ -119,7 +119,7 @@ public class EmailService {
                 "Olá %s,\n\n" +
                 "Seu saldo de cashback de R$ %.2f venceu :( \n\n" +
                 "Mas não desanime, você ainda tem R$ %.2f de saldo para gastar!\n\n" +
-                "Confira nossos produtos disponíveis." +
+                "Confira nossos produtos disponíveis.\n\n" +
                 "Atenciosamente,\n" +
                 "SerraBucks - E-Commerce de Cafés",
                 c.getNome(), 
