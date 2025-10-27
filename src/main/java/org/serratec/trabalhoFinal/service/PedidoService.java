@@ -9,7 +9,10 @@ import org.serratec.trabalhoFinal.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.validation.Valid;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,17 +24,20 @@ public class PedidoService {
 	private final ProdutoRepository produtoRepo;
 	private final CashbackService cashbackService;
 	private final EstoqueService estoqueService;
+  private final EmailService emailService;
 
 	public PedidoService(PedidoRepository pedidoRepo, ClienteRepository clienteRepo, ProdutoRepository produtoRepo,
-			CashbackService cashbackService, EstoqueService estoqueService) {
+			CashbackService cashbackService, EmailService emailService, EstoqueService estoqueService) {
+
 		this.pedidoRepo = pedidoRepo;
 		this.clienteRepo = clienteRepo;
 		this.produtoRepo = produtoRepo;
 		this.cashbackService = cashbackService;
-		this.estoqueService = estoqueService;
-	}
+    this.emailService = emailService;
+    this.estoqueService = estoqueService;
+  }
 
-	@Transactional
+  @Transactional
 	public PedidoDTO criar(PedidoCriacaoDTO dto) {
 		Cliente cliente = clienteRepo.findById(dto.getClienteId())
 				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
@@ -70,29 +76,7 @@ public class PedidoService {
 
 	@Transactional
 	public PedidoDTO atualizarPedido(Long id, PedidoCriacaoDTO dto) {
-		Pedido pedido = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
 
-		Cliente cliente = clienteRepo.findById(dto.getClienteId())
-				.orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-		pedido.setCliente(cliente);
-
-		pedido.getItens().clear();
-		for (ItemPedidoCriacaoDTO itemDTO : dto.getItens()) {
-			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
-					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
-
-			ItemPedido item = new ItemPedido();
-			item.setPedido(pedido);
-			item.setProduto(p);
-			item.setQuantidade(itemDTO.getQuantidade());
-			item.setValorVenda(p.getPreco());
-			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
-			pedido.getItens().add(item);
-		}
-
-		Pedido saved = pedidoRepo.save(pedido);
-		return toDto(saved);
-	}
 	
 	@Transactional 
     public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
@@ -109,9 +93,8 @@ public class PedidoService {
         Pedido saved = pedidoRepo.save(pedido);
         return toDto(saved);
     }
-	
-
-	public List<PedidoDTO> listarTodos() {
+    
+    public List<PedidoDTO> listarTodos() {
 		return pedidoRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
 	}
 
@@ -121,8 +104,68 @@ public class PedidoService {
 		}
 		pedidoRepo.deleteById(id);
 	}
+    
+	public CarrinhoResponseDTO adicionarProduto(Long clienteId, @Valid ItemPedidoCriacaoDTO dto) {
+		clienteRepo.findById(clienteId)
+				.orElseThrow(() -> new NotFoundException("Cliente não encontrado com o ID: " + clienteId));
 
-	private PedidoDTO toDto(Pedido p) {
+		Pedido pedido;
+		if (!pedidoRepo.existsByClienteIdAndStatus(clienteId, StatusPedido.PENDENTE)) {
+			pedido = new Pedido();
+			pedido.setCliente(clienteRepo.findById(clienteId).get());
+		} else {
+			pedido = pedidoRepo.findByClienteIdAndStatus(clienteId, StatusPedido.PENDENTE);
+		}
+
+		pedido.adicionarItem(
+				new ItemPedido(produtoRepo.findById(dto.getProdutoId()).get(), pedido, dto.getQuantidade()));
+		
+		PedidoDTO pedidoDto = toDto(pedidoRepo.save(pedido));
+
+		return new CarrinhoResponseDTO(pedidoDto.getItens(), pedido.getTotal()); //
+
+	}
+
+	public PedidoDTO concluirPedido(Long pedidoId, boolean usarCashback) {
+		// info pedido
+		Pedido pedido = pedidoRepo.findById(pedidoId).get();
+		//valor do pedido
+		BigDecimal totalDoPedido = pedido.getTotal();
+		
+		// aplicar cashback = calcular valor da compra
+		if (usarCashback) {
+			BigDecimal saldoCashback = pedido.getCliente().getCarteira();
+			if (saldoCashback.compareTo(totalDoPedido) > 0) { // caso o valor da compra seja inferior ao valor contido
+																// na carteira (cashback)
+				saldoCashback = saldoCashback.subtract(totalDoPedido);
+				totalDoPedido = totalDoPedido.subtract(totalDoPedido);
+				pedido.getCliente().setCarteira(saldoCashback);
+			} else {
+				totalDoPedido = totalDoPedido.subtract(saldoCashback);
+				saldoCashback = saldoCashback.subtract(saldoCashback); // se o pedido for maior qu o cashback eu subtraio tudo
+				pedido.getCliente().setCarteira(saldoCashback);
+			}
+		}
+		
+		// receber cashback
+		Cashback cashback = cashbackService.ganharCashback(pedido.getCliente(), totalDoPedido);
+		pedido.getCliente().aumentarCarteira(cashback);    // recebe o pedido, cria o cashback, soma na carteira e salva o cb no banco
+		// alterar status
+		pedido.setStatus(StatusPedido.PAGO);
+		
+		
+		// enviar email
+		emailService.enviarNotificacaoCashback(pedido, cashback.getSaldo(), pedido.getCliente().getCarteira(), totalDoPedido, pedido.getTotal());
+		
+		PedidoDTO dto = toDto(pedidoRepo.save(pedido));
+		dto.setTotal(totalDoPedido);
+		cashbackService.desativarCashbackUsado(pedido.getCliente());
+		
+		return dto;  // salva o pedido
+
+	}
+    
+    private PedidoDTO toDto(Pedido p) {
 		PedidoDTO dto = new PedidoDTO();
 		dto.setId(p.getId());
 		dto.setClienteNome(p.getCliente().getNome());
@@ -144,4 +187,5 @@ public class PedidoService {
 		dto.setTotal(p.getTotal());
 		return dto;
 	}
+
 }

@@ -13,8 +13,10 @@ public class PedidoCriacaoDTO {
     @NotNull
     private List<ItemPedidoCriacaoDTO> itens;
     
-    @DecimalMin(value = "0.0", message = "O cashback não pode ser negativo.")
-    private BigDecimal cashbackUtilizado = BigDecimal.ZERO;
+    /*@DecimalMin(value = "0.0", message = "O cashback não pode ser negativo.")
+    private BigDecimal cashbackUtilizado = BigDecimal.ZERO;*/
+    
+    private Boolean usarCashbackIntegral = false;
 
     public Long getClienteId() {
         return clienteId;
@@ -32,11 +34,19 @@ public class PedidoCriacaoDTO {
         this.itens = itens;
     }
     
-    public BigDecimal getCashbackUtilizado() {
+    /*public BigDecimal getCashbackUtilizado() {
         return cashbackUtilizado;
     }
 
     public void setCashbackUtilizado(BigDecimal cashbackUtilizado) {
         this.cashbackUtilizado = cashbackUtilizado;
+    }*/
+    
+    public Boolean getUsarCashbackIntegral() {
+        return usarCashbackIntegral;
+    }
+
+    public void setUsarCashbackIntegral(Boolean usarCashbackIntegral) {
+        this.usarCashbackIntegral = usarCashbackIntegral;
     }
 }

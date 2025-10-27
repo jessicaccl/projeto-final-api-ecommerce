@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -48,14 +50,15 @@ public class Cliente {
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
     
-    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Cashback cashback;
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal carteira = BigDecimal.ZERO;
 
     public Cliente() {}
 
-	public Cliente(Long id, @NotBlank String nome, @NotBlank String telefone, @NotBlank @Email String email,
+	  public Cliente(Long id, @NotBlank String nome, @NotBlank String telefone, @NotBlank @Email String email,
 			@NotBlank String senha, @NotBlank String cpf, Endereco endereco, Boolean ativo, Usuario usuario,
-			Cashback cashback) {
+			BigDecimal carteira) {
 		super();
 		this.id = id;
 		this.nome = nome;
@@ -66,8 +69,9 @@ public class Cliente {
 		this.endereco = endereco;
 		this.ativo = ativo;
 		this.usuario = usuario;
-		this.cashback = cashback;
+		this.carteira = carteira;
 	}
+
 
 	public Long getId() {
 		return id;
@@ -133,13 +137,17 @@ public class Cliente {
 		this.ativo = ativo;
 	}
 	
-	public Cashback getCashback() {
-        return cashback;
-    }
-
-    public void setCashback(Cashback cashback) {
-        this.cashback = cashback;
-    }
+	public BigDecimal getCarteira() {
+		return carteira;
+	}
+  
+  public void setCarteira(BigDecimal carteira) {
+		this.carteira = carteira;
+	}
+	
+	public void aumentarCarteira(Cashback cashback) {
+		this.carteira = this.carteira.add(cashback.getSaldo());
+	}
 
 	public Usuario getUsuario() {
 		return usuario;
