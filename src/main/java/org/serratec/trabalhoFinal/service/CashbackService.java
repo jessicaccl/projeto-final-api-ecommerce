@@ -74,7 +74,7 @@ public class CashbackService {
 	}
 
 // ----- método para calcular vencimento LocalDate - desativar os cupons usados
-	
+
 	public void desativarCashbackUsado(Cliente cliente) {
 		// buscar cahsbks ativos
 		List<Cashback> listaCashback = cashbackRepo
@@ -94,7 +94,7 @@ public class CashbackService {
 	}
 
 // ----- método para calcular saldo a vencer - deduzir cupons ativos e calcular resto do último
-	
+
 	public BigDecimal calcularSaldoAVencer(Cliente cliente) {
 		desativarCashbackUsado(cliente);
 		List<Cashback> listaCashback = cashbackRepo
@@ -120,7 +120,7 @@ public class CashbackService {
 
 // ----- vencer cupom - deduzir saldo do cupom - desativar
 
-public BigDecimal expirarCashback(Cliente cliente) {
+	public BigDecimal expirarCashback(Cliente cliente) {
 		desativarCashbackUsado(cliente);
 		List<Cashback> listaCashback = cashbackRepo
 				.findByClienteIdAndIsActiveTrueOrderByDataVencimentoDesc(cliente.getId());
@@ -142,10 +142,21 @@ public BigDecimal expirarCashback(Cliente cliente) {
 		saldoVencido = saldoVencido.add(saldo);
 		cliente.setCarteira(cliente.getCarteira().subtract(saldoVencido));
 		clienteRepo.save(cliente);
-		
+
 		return saldoVencido;
 
 	}
+	
+	public void creditar(Long clienteId, BigDecimal valor) {
+	    Cliente cliente = clienteRepo.findById(clienteId)
+	            .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+	    
+	    Cashback cashback = new Cashback(cliente, valor); // cria cashback com o valor
+	    cliente.aumentarCarteira(cashback);             // usa o método existente
+	    cashbackRepo.save(cashback);                    // salva o cashback no banco
+	    clienteRepo.save(cliente);                      // atualiza cliente
+	}
+
 
 // scheduled para avisar vencimento
 

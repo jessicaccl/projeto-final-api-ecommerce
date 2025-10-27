@@ -34,8 +34,8 @@ public class Pedido {
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens = new ArrayList<>();
-
-	
+    
+    private BigDecimal cashbackUtilizado = BigDecimal.ZERO;
 
 	public BigDecimal getTotal() {
 
@@ -47,9 +47,9 @@ public class Pedido {
 		return subtotal;
 	}
 
-    public BigDecimal getTotal() {
-        return valorTotal.subtract(cashbackUtilizado);
-    }
+	public BigDecimal getTotalComCashback() {
+	    return getTotal().subtract(cashbackUtilizado);
+	}
 
     public Long getId() {
         return id;
@@ -90,10 +90,6 @@ public class Pedido {
     public void setItens(List<ItemPedido> itens) {
         this.itens = itens;
     }
-
-	public void setItens(List<ItemPedido> itens) {
-		this.itens = itens;
-	}
 	
 	public void adicionarItem(ItemPedido item) {
 		this.itens.add(item);

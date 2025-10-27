@@ -1,7 +1,20 @@
 package org.serratec.trabalhoFinal.service;
 
-import org.serratec.trabalhoFinal.domain.*;
-import org.serratec.trabalhoFinal.dto.*;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.serratec.trabalhoFinal.domain.Cashback;
+import org.serratec.trabalhoFinal.domain.Cliente;
+import org.serratec.trabalhoFinal.domain.ItemPedido;
+import org.serratec.trabalhoFinal.domain.Pedido;
+import org.serratec.trabalhoFinal.domain.Produto;
+import org.serratec.trabalhoFinal.domain.StatusPedido;
+import org.serratec.trabalhoFinal.dto.CarrinhoResponseDTO;
+import org.serratec.trabalhoFinal.dto.ItemPedidoCriacaoDTO;
+import org.serratec.trabalhoFinal.dto.ItemPedidoDTO;
+import org.serratec.trabalhoFinal.dto.PedidoCriacaoDTO;
+import org.serratec.trabalhoFinal.dto.PedidoDTO;
 import org.serratec.trabalhoFinal.exception.NotFoundException;
 import org.serratec.trabalhoFinal.repository.ClienteRepository;
 import org.serratec.trabalhoFinal.repository.PedidoRepository;
@@ -10,11 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.validation.Valid;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
@@ -61,7 +69,7 @@ public class PedidoService {
 			item.setProduto(p);
 			item.setQuantidade(itemDTO.getQuantidade());
 			item.setValorVenda(p.getPreco());
-			item.setDesconto(itemDTO.getDesconto() == null ? BigDecimal.ZERO : itemDTO.getDesconto());
+			item.setDesconto(BigDecimal.ZERO); // não existe desconto na DTO
 			pedido.getItens().add(item);
 		}
 
@@ -70,13 +78,16 @@ public class PedidoService {
 	}
 
 	public PedidoDTO buscarPorId(Long id) {
-		Pedido p = pedidoRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+		Pedido p = pedidoRepo.findById(id)
+				.orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
 		return toDto(p);
 	}
 
-	@Transactional
-	public PedidoDTO atualizarPedido(Long id, PedidoCriacaoDTO dto) {
-
+	public List<PedidoDTO> listarTodos() {
+		return pedidoRepo.findAll().stream()
+				.map(this::toDto)
+				.collect(Collectors.toList());
+	}
 	
 	@Transactional 
     public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
@@ -87,16 +98,13 @@ public class PedidoService {
             BigDecimal valorTotalParaCashback = pedido.getTotal(); 
             cashbackService.creditar(pedido.getCliente().getId(), valorTotalParaCashback);
         } else if (novoStatus == StatusPedido.CANCELADO && pedido.getStatus() == StatusPedido.PAGO) {
-       }
+        	
+        }
         
         pedido.setStatus(novoStatus);
         Pedido saved = pedidoRepo.save(pedido);
         return toDto(saved);
     }
-    
-    public List<PedidoDTO> listarTodos() {
-		return pedidoRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
-	}
 
 	public void deletar(Long id) {
 		if (!pedidoRepo.existsById(id)) {
