@@ -61,7 +61,7 @@ public class PedidoService {
 			if(!estoqueService.verificarEstoque(p.getId(), itemDTO.getQuantidade())) {
 				throw new RuntimeException("Estoque insuficiente para o produto: " + p.getNome());
 			}
-			
+
 			estoqueService.darBaixaEstoque(p.getId(), itemDTO.getQuantidade());
 			
 			ItemPedido item = new ItemPedido();
