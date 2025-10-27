@@ -72,23 +72,23 @@ O módulo de Wishlist permite que clientes logados rastreiem produtos de interes
 <br><br>
 ## 4. 📝 Assinaturas de Produtos (Jessica Lima)
 O módulo de Assinaturas permite que os clientes contratem planos recorrentes, implementando um modelo de negócio comum em serviços de entrega de café por recorrência.
-<br>
-1. Modelo de Entidades e Estados
+
+<br> 1. Modelo de Entidades e Estados  
 | Classe | Pacote | Função |
 | :--- | :--- | :--- |
 | **Plano** | `.domain` | Entidade que define as características do serviço recorrente (ex: Plano Mensal, Semestral). |
 | **Assinatura** | `.domain` | Entidade que rastreia a inscrição do cliente em um `Plano` específico. |
 | **StatusAssinatura** | `.domain` | **ENUM** que define os estados possíveis da assinatura (ex: ATIVA, CANCELADA, PENDENTE). |
 | **AssinaturaDTO** | `.dto` | DTOs de leitura e escrita para comunicação com o cliente/API. |
-<br>
-2. Fluxo de Serviço (AssinaturaService.java)
+
+<br> 2. Fluxo de Serviço (AssinaturaService.java)  
 | Método | Função |
 | :--- | :--- |
 | **Criação (POST)** | Registra a inscrição do cliente em um `Plano`. Inicializa a assinatura com o `StatusAssinatura.PENDENTE` (ou o estado inicial definido). |
 | **Atualização (PUT)** | Permite alterações no plano ou no status da assinatura (ex: mudar de ATIVA para CANCELADA). |
 | **Notificação/Processamento** | Contém a lógica para processar renovações e verificar datas de cobrança (não detalhado, mas inferido pelo módulo). |
-<br>
-3. Endpoints Expostos (AssinaturaController.java)
+
+<br> 3. Endpoints Expostos (AssinaturaController.java)  
 | Verbo | URL | Função |
 | :--- | :--- | :--- |
 | **GET** | `/assinaturas` | Lista todas as assinaturas do sistema ou de um cliente específico (se a URL for aninhada). |
@@ -97,7 +97,7 @@ O módulo de Assinaturas permite que os clientes contratem planos recorrentes, i
 | **PUT** | `/assinaturas/{id}` | Atualiza os detalhes ou o status de uma assinatura. |
 | **DELETE** | `/assinaturas/{id}` | Remove/Cancela logicamente a assinatura. |
 
-<br><br>
+# .
 # 📂 Estrutura de Pacotes da API E-Commerce
 ```
 📁 trabalho-final-API
