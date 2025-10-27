@@ -14,8 +14,6 @@ public class CashbackResponseDTO {
     
     private LocalDateTime data;
     
-    
-    
     public CashbackResponseDTO(@NotNull @DecimalMin("0.0") BigDecimal valor, LocalDateTime data) {
 		super();
 		this.valor = valor;
