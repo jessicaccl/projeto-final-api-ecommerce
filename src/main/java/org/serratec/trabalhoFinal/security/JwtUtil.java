@@ -25,7 +25,6 @@ public class JwtUtil {
 				.setExpiration(new Date(System.currentTimeMillis() + this.jwtExpirationMiliseg))
 				.signWith(secretKeySpec)
 				.compact();
-
 	}
 
 	public boolean isValidToken(String token) {
@@ -41,12 +40,10 @@ public class JwtUtil {
 			if (username != null && expirationDate != null && now.before(expirationDate)) {
 
 				return true;
-
 			}
-
 		}
+		
 		return false;
-
 	}
 
 	public String getUserName(String token) {
@@ -54,19 +51,15 @@ public class JwtUtil {
 		Claims claims = getClaims(token);
 
 		if (claims != null) {
-
+			
 			return claims.getSubject();
-
 		}
-
+		
 		return null;
-
 	}
 
 	public Claims getClaims(String token) {
 
 		return Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token).getBody();
-
 	}
-
 }

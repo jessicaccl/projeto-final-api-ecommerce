@@ -50,9 +50,8 @@ public class ClienteService {
     	Usuario usuario = new Usuario();
     	usuario.setUsername(dto.getEmail());
     	usuario.setPassword(passwordEncoder.encode(dto.getSenha() != null ? dto.getSenha() : "123456"));
-    	usuario.setRole("USER");
+    	usuario.setRole("ROLE_USER");
 
-    	// Criação do cliente
     	Cliente cliente = new Cliente();
     	cliente.setNome(dto.getNome());
     	cliente.setTelefone(dto.getTelefone());
@@ -60,9 +59,8 @@ public class ClienteService {
     	cliente.setSenha(passwordEncoder.encode(dto.getSenha()));
     	cliente.setCpf(dto.getCpf());
     	cliente.setUsuario(usuario);
-    	usuario.setCliente(cliente); // importante
+    	usuario.setCliente(cliente); 
 
-    	// Endereço básico se não tiver CEP válido
     	Endereco endereco = new Endereco();
     	if (dto.getCep() != null) {
     	    EnderecoDTO enderecoDTO = enderecoService.buscar(dto.getCep());
@@ -85,7 +83,6 @@ public class ClienteService {
         cliente.setTelefone(dto.getTelefone());
         cliente.setEmail(dto.getEmail());
 
-        // Atualiza usuário também
         Usuario usuario = cliente.getUsuario();
         if (usuario != null) {
             usuario.setUsername(dto.getEmail());
@@ -124,6 +121,10 @@ public class ClienteService {
         dto.setTelefone(cliente.getTelefone());
         dto.setEmail(cliente.getEmail());
         dto.setCpf(cliente.getCpf());
+        
+        if (cliente.getUsuario() != null) {
+            dto.setRole(cliente.getUsuario().getRole().replace("ROLE_", ""));
+        }
 
         if (cliente.getEndereco() != null) {
             EnderecoDTO ed = new EnderecoDTO();

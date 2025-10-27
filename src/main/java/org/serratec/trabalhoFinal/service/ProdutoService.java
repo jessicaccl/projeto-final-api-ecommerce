@@ -71,6 +71,4 @@ public class ProdutoService {
         dto.setCategoriaNome(p.getCategoria().getNome());
         return dto;
     }
-    
-  
 }

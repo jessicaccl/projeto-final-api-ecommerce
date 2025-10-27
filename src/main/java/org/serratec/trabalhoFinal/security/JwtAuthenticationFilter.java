@@ -3,7 +3,6 @@ package org.serratec.trabalhoFinal.security;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.serratec.trabalhoFinal.dto.LoginDTO;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -54,5 +53,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.getWriter().write("{\"token\": \"" + token + "\"}");
         response.getWriter().flush();
     }
-
 }

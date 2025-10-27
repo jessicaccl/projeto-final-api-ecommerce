@@ -20,13 +20,15 @@ public class PedidoService {
 	private final ClienteRepository clienteRepo;
 	private final ProdutoRepository produtoRepo;
 	private final CashbackService cashbackService;
+	private final EstoqueService estoqueService;
 
 	public PedidoService(PedidoRepository pedidoRepo, ClienteRepository clienteRepo, ProdutoRepository produtoRepo,
-			CashbackService cashbackService) {
+			CashbackService cashbackService, EstoqueService estoqueService) {
 		this.pedidoRepo = pedidoRepo;
 		this.clienteRepo = clienteRepo;
 		this.produtoRepo = produtoRepo;
 		this.cashbackService = cashbackService;
+		this.estoqueService = estoqueService;
 	}
 
 	@Transactional
@@ -42,6 +44,12 @@ public class PedidoService {
 			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
 					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
 
+			if(!estoqueService.verificarEstoque(p.getId(), itemDTO.getQuantidade())) {
+				throw new RuntimeException("Estoque insuficiente para o produto: " + p.getNome());
+			}
+			
+			estoqueService.darBaixaEstoque(p.getId(), itemDTO.getQuantidade());
+			
 			ItemPedido item = new ItemPedido();
 			item.setPedido(pedido);
 			item.setProduto(p);
@@ -86,7 +94,7 @@ public class PedidoService {
 		return toDto(saved);
 	}
 	
-	@Transactional // Faz parte da logica do Cashback
+	@Transactional 
     public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
         Pedido pedido = pedidoRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
@@ -136,6 +144,4 @@ public class PedidoService {
 		dto.setTotal(p.getTotal());
 		return dto;
 	}
-	
-	
 }
