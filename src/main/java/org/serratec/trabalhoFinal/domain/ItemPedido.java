@@ -36,8 +36,6 @@ public class ItemPedido {
 	@Min(1)
 	private Integer quantidade;
 	
-	
-	
 	public ItemPedido() {}	
 	
 	
