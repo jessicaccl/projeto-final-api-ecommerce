@@ -2,7 +2,9 @@ package org.serratec.trabalhoFinal.controller;
 
 import java.util.List;
 
-import org.serratec.trabalhoFinal.domain.WishlistItem;
+import org.serratec.trabalhoFinal.dto.WishlistInputDTO;
+import org.serratec.trabalhoFinal.dto.WishlistResponseDTO;
+import org.serratec.trabalhoFinal.dto.SuccessResponseDTO; // NOVO IMPORT!
 import org.serratec.trabalhoFinal.service.WishlistService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,40 +12,57 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/clientes/{clienteId}/wishlist")
 public class WishlistController {
     
-    private final WishlistService service;
+    private final WishlistService wishlistService;
 
-    public WishlistController(WishlistService service) {
-        this.service = service;
+
+    public WishlistController(WishlistService wishlistService) {
+        this.wishlistService = wishlistService;
     }
 
-    // Adiciona um produto à lista de desejos (Create)
-    // Ex: POST /clientes/1/wishlist/5 (Adiciona o produto ID 5 ao cliente ID 1)
-    @PostMapping("/{produtoId}")
-    public ResponseEntity<WishlistItem> adicionar(@PathVariable Long clienteId, @PathVariable Long produtoId) {
-        WishlistItem item = service.adicionarProduto(clienteId, produtoId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(item);
+    @PostMapping
+   
+    public ResponseEntity<SuccessResponseDTO> adicionarProduto(
+            @PathVariable Long clienteId,
+            @Valid @RequestBody WishlistInputDTO inputDTO) {
+        
+        // Chama o serviço para adicionar o produto. 
+        wishlistService.adicionarProduto(clienteId, inputDTO.getProdutoId());
+        
+        // Cria o objeto de resposta JSON
+        SuccessResponseDTO response = new SuccessResponseDTO(
+            "Produto adicionado à sua lista de desejos com sucesso!"
+        );
+        
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+    
 
-    // Lista os produtos na lista de desejos (Read)
-    // Ex: GET /clientes/1/wishlist
     @GetMapping
-    public ResponseEntity<List<WishlistItem>> listar(@PathVariable Long clienteId) {
-        List<WishlistItem> lista = service.listarProdutos(clienteId);
+    public ResponseEntity<List<WishlistResponseDTO>> listarProdutos(@PathVariable Long clienteId) {
+        
+        List<WishlistResponseDTO> lista = wishlistService.listarProdutos(clienteId);
+        
         return ResponseEntity.ok(lista);
     }
 
-    // Remove um produto da lista de desejos (Delete)
-    // Ex: DELETE /clientes/1/wishlist/5 
     @DeleteMapping("/{produtoId}")
-    public ResponseEntity<Void> remover(@PathVariable Long clienteId, @PathVariable Long produtoId) {
-        service.removerProduto(clienteId, produtoId);
-        return ResponseEntity.noContent().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT) // Retorna 204
+    public void removerProduto(
+            @PathVariable Long clienteId, 
+            @PathVariable Long produtoId) {
+        
+
+        wishlistService.removerProduto(clienteId, produtoId);
+        
     }
 }

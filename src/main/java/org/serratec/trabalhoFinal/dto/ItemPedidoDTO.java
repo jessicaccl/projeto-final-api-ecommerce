@@ -7,12 +7,26 @@ public class ItemPedidoDTO {
     private String produtoNome;
     private Integer quantidade;
     private BigDecimal valorUnitario;
-    private BigDecimal desconto;
+    private BigDecimal desconto; // desconto individual
+    //private BigDecimal descontoPrimeiroPedido; // novo campo
     private BigDecimal subtotal;
 
     public ItemPedidoDTO() {}
+    
+    
 
-    public String getProdutoNome() {
+    public ItemPedidoDTO(String produtoNome, Integer quantidade, BigDecimal valorUnitario, BigDecimal desconto,
+			BigDecimal subtotal) {
+		this.produtoNome = produtoNome;
+		this.quantidade = quantidade;
+		this.valorUnitario = valorUnitario;
+		this.desconto = desconto;
+		this.subtotal = subtotal;
+	}
+
+
+
+	public String getProdutoNome() {
         return produtoNome;
     }
 
@@ -43,6 +57,14 @@ public class ItemPedidoDTO {
     public void setDesconto(BigDecimal desconto) {
         this.desconto = desconto;
     }
+
+    //public BigDecimal getDescontoPrimeiroPedido() {
+       // return descontoPrimeiroPedido;
+   // }
+
+    //public void setDescontoPrimeiroPedido(BigDecimal descontoPrimeiroPedido) {
+        //this.descontoPrimeiroPedido = descontoPrimeiroPedido;
+   // }
 
     public BigDecimal getSubtotal() {
         return subtotal;

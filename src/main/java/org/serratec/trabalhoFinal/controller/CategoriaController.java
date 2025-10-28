@@ -1,6 +1,7 @@
 package org.serratec.trabalhoFinal.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.serratec.trabalhoFinal.dto.CategoriaDTO;
 import org.serratec.trabalhoFinal.service.CategoriaService;
@@ -44,9 +45,11 @@ public class CategoriaController {
     }
 	
 	@PostMapping
-	public ResponseEntity<CategoriaDTO> criar(@Valid @RequestBody CategoriaDTO dto) {
-		
-		return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+	public ResponseEntity<List<CategoriaDTO>> criarVarios(@RequestBody List<CategoriaDTO> dtos) {
+	    List<CategoriaDTO> salvos = dtos.stream()
+	        .map(dto -> service.criar(dto))
+	        .collect(Collectors.toList());
+	    return ResponseEntity.status(HttpStatus.CREATED).body(salvos);
 	}
 	
 	@PutMapping("/{id}")
@@ -55,9 +58,9 @@ public class CategoriaController {
 		return ResponseEntity.ok(service.atualizar(id, dto));
 	}
 	
-	@DeleteMapping("/categorias/{id}")
-	public ResponseEntity<Void> deletarCategoria(@PathVariable Long id) {
-	    service.deletar(id);
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deletar(@PathVariable Long id) {
+	    service.deletarCategoria(id);
 	    return ResponseEntity.noContent().build();
 	}
 }

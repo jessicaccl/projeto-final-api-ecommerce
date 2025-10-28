@@ -1,6 +1,17 @@
 package org.serratec.trabalhoFinal.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -35,22 +46,32 @@ public class Cliente {
     @Column(nullable = false, columnDefinition = "boolean default true")
     private Boolean ativo = true;
     
-    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Cashback cashback;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
+    
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal carteira = BigDecimal.ZERO;
 
     public Cliente() {}
 
-    public Cliente(Long id, String nome, String telefone, String email, String cpf, Endereco endereco, String senha) {
-        this.id = id;
-        this.nome = nome;
-        this.telefone = telefone;
-        this.email = email;
-        this.cpf = cpf;
-        this.endereco = endereco;
-        this.senha = senha;
-        this.ativo = true;
-        this.cashback = new Cashback(this);
-    }
+	  public Cliente(Long id, @NotBlank String nome, @NotBlank String telefone, @NotBlank @Email String email,
+			@NotBlank String senha, @NotBlank String cpf, Endereco endereco, Boolean ativo, Usuario usuario,
+			BigDecimal carteira) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.telefone = telefone;
+		this.email = email;
+		this.senha = senha;
+		this.cpf = cpf;
+		this.endereco = endereco;
+		this.ativo = ativo;
+		this.usuario = usuario;
+		this.carteira = carteira;
+	}
+
 
 	public Long getId() {
 		return id;
@@ -116,11 +137,23 @@ public class Cliente {
 		this.ativo = ativo;
 	}
 	
-	public Cashback getCashback() {
-        return cashback;
-    }
+	public BigDecimal getCarteira() {
+		return carteira;
+	}
+  
+  public void setCarteira(BigDecimal carteira) {
+		this.carteira = carteira;
+	}
+	
+	public void aumentarCarteira(Cashback cashback) {
+		this.carteira = this.carteira.add(cashback.getSaldo());
+	}
 
-    public void setCashback(Cashback cashback) {
-        this.cashback = cashback;
-    }
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
 }

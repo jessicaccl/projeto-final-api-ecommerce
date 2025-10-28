@@ -2,30 +2,32 @@ package org.serratec.trabalhoFinal.dto;
 
 public class ClienteDTO {
 
-    private Long id;
+    private Long idUsuario;
     private String nome;
     private String telefone;
     private String email;
     private String cpf;
+    private String role;
     private EnderecoDTO endereco;
 
     public ClienteDTO() {}
 
-    public ClienteDTO(Long id, String nome, String telefone, String email, String cpf, EnderecoDTO endereco) {
-        this.id = id;
+    public ClienteDTO(Long id, String nome, String telefone, String email, String cpf, EnderecoDTO endereco, String role) {
+        this.idUsuario = id;
         this.nome = nome;
         this.telefone = telefone;
         this.email = email;
         this.cpf = cpf;
         this.endereco = endereco;
+        this.role = role;
     }
 
     public Long getId() {
-        return id;
+        return idUsuario;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.idUsuario = id;
     }
 
     public String getNome() {
@@ -67,4 +69,12 @@ public class ClienteDTO {
     public void setEndereco(EnderecoDTO endereco) {
         this.endereco = endereco;
     }
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
 }

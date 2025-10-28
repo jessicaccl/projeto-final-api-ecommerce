@@ -1,6 +1,7 @@
 package org.serratec.trabalhoFinal.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.serratec.trabalhoFinal.dto.ProdutoDTO;
 import org.serratec.trabalhoFinal.service.ProdutoService;
@@ -22,6 +23,7 @@ import jakarta.validation.Valid;
 public class ProdutoController {
 	
 	private final ProdutoService service;
+	
 	public ProdutoController(ProdutoService service) {
 		this.service = service;
 	}
@@ -43,9 +45,11 @@ public class ProdutoController {
     }
 	
 	@PostMapping
-	public ResponseEntity<ProdutoDTO> criar(@Valid @RequestBody ProdutoDTO dto){
-		
-		return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+	public ResponseEntity<List<ProdutoDTO>> criarVarios(@RequestBody List<ProdutoDTO> dtos) {
+	    List<ProdutoDTO> salvos = dtos.stream()
+	        .map(dto -> service.criar(dto))
+	        .collect(Collectors.toList());
+	    return ResponseEntity.status(HttpStatus.CREATED).body(salvos);
 	}
 	
 	@PutMapping("/{id}")
@@ -59,6 +63,4 @@ public class ProdutoController {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }
-
-
 }

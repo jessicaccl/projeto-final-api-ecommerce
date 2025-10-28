@@ -29,6 +29,11 @@ public class ProdutoService {
 	}
 
     public ProdutoDTO criar(ProdutoDTO dto) {
+    	
+    	if(dto.getCategoriaId() == null) {
+    		throw new IllegalArgumentException("O ID da categoria não pode ser nulo");
+    	}
+    	
         Categoria cat = categoriaRepo.findById(dto.getCategoriaId()).orElseThrow(() -> new NotFoundException("Categoria não encontrada"));
         Produto p = new Produto();
         p.setNome(dto.getNome());
@@ -71,6 +76,4 @@ public class ProdutoService {
         dto.setCategoriaNome(p.getCategoria().getNome());
         return dto;
     }
-    
-  
 }
