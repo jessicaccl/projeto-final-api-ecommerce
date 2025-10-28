@@ -2,7 +2,6 @@ package org.serratec.trabalhoFinal.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.serratec.trabalhoFinal.dto.EstoqueDTO;
 import org.serratec.trabalhoFinal.service.EstoqueService;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +24,10 @@ public class EstoqueController {
     }
     
     @GetMapping
+    public ResponseEntity<List<EstoqueDTO>> listarTodos() {
+    	List<EstoqueDTO> estoqueDTO = estoqueService.listarTodosProdutos();
+    	return ResponseEntity.ok(estoqueDTO);
+    }
     public ResponseEntity<List<EstoqueDTO>> listarTudo() {
         List<EstoqueDTO> dtos = estoqueService.listarTodosProdutos()
             .stream()

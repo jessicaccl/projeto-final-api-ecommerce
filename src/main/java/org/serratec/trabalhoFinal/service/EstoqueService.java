@@ -1,6 +1,7 @@
 package org.serratec.trabalhoFinal.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.serratec.trabalhoFinal.domain.Estoque;
 import org.serratec.trabalhoFinal.domain.Produto;
@@ -19,10 +20,14 @@ public class EstoqueService {
 		this.estoqueRepository = estoqueRepository;
 	}
 	
-	public List<Estoque> listarTodosProdutos() {
-        return estoqueRepository.findAll();
-    }
-	
+	public List<EstoqueDTO> listarTodosProdutos() {
+		return estoqueRepository.findAll()
+				.stream()
+				.map(e -> new EstoqueDTO(
+				))
+				.collect(Collectors.toList());
+	}
+
 	public boolean verificarEstoque(Long produtoId, int quantidadeSolicitada) {
         Estoque estoque = estoqueRepository.findByProdutoId(produtoId);
         return estoque != null && estoque.getQuantidade() >= quantidadeSolicitada;
