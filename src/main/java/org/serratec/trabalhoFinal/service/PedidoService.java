@@ -31,18 +31,18 @@ public class PedidoService {
 	private final ClienteRepository clienteRepo;
 	private final ProdutoRepository produtoRepo;
 	private final CashbackService cashbackService;
-	private final EstoqueService estoqueService;
 	private final EmailService emailService;
+	private final ProdutoService produtoService;
 
 	public PedidoService(PedidoRepository pedidoRepo, ClienteRepository clienteRepo, ProdutoRepository produtoRepo,
-			CashbackService cashbackService, EmailService emailService, EstoqueService estoqueService) {
+			CashbackService cashbackService, EmailService emailService, ProdutoService produtoService) {
 
 		this.pedidoRepo = pedidoRepo;
 		this.clienteRepo = clienteRepo;
 		this.produtoRepo = produtoRepo;
 		this.cashbackService = cashbackService;
 		this.emailService = emailService;
-		this.estoqueService = estoqueService;
+		this.produtoService = produtoService;
 	}
 
 	@Transactional
@@ -58,12 +58,12 @@ public class PedidoService {
 			Produto p = produtoRepo.findById(itemDTO.getProdutoId())
 					.orElseThrow(() -> new NotFoundException("Produto não encontrado: " + itemDTO.getProdutoId()));
 
-			if (!estoqueService.verificarEstoque(p.getId(), itemDTO.getQuantidade())) {
+			if (!produtoService.verificarEstoque(p.getId(), itemDTO.getQuantidade())) {
 
 				throw new RuntimeException("Estoque insuficiente para o produto: " + p.getNome());
 			}
 
-			estoqueService.darBaixaEstoque(p.getId(), itemDTO.getQuantidade());
+			produtoService.darBaixaEstoque(p.getId(), itemDTO.getQuantidade());
 
 			ItemPedido item = new ItemPedido();
 			item.setPedido(pedido);
@@ -86,24 +86,6 @@ public class PedidoService {
 	public List<PedidoDTO> listarTodos() {
 		return pedidoRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
 	}
-
-	@Transactional // -------- JÁ EXISTE UM MÉTODO NESSA CLASSE PARA CONCLUSÃO DE PEDIDO
-					// -------------
-//    public PedidoDTO atualizarStatus(Long id, StatusPedido novoStatus) {
-//        Pedido pedido = pedidoRepo.findById(id)
-//                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
-//        
-//           if (novoStatus == StatusPedido.PAGO && pedido.getStatus() != StatusPedido.PAGO) {
-//            BigDecimal valorTotalParaCashback = pedido.getTotal(); 
-//            cashbackService.creditar(pedido.getCliente().getId(), valorTotalParaCashback);
-//        } else if (novoStatus == StatusPedido.CANCELADO && pedido.getStatus() == StatusPedido.PAGO) {
-//        	
-//        }
-//        
-//        pedido.setStatus(novoStatus);
-//        Pedido saved = pedidoRepo.save(pedido);
-//        return toDto(saved);
-//    }
 
 	public void deletar(Long id) {
 		if (!pedidoRepo.existsById(id)) {

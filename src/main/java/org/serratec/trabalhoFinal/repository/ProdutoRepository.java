@@ -19,4 +19,5 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 	List<Produto> findProdutosRelacionados(@Param("ids") Set<Long> ids);
 
 	List<Produto> findTop5ByOrderByQuantidadeVendidaDesc();
+	
 }

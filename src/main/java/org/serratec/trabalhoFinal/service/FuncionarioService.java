@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.serratec.trabalhoFinal.domain.Funcionario;
 import org.serratec.trabalhoFinal.domain.Usuario;
+import org.serratec.trabalhoFinal.dto.FuncionarioCadastroDTO; // Novo DTO
 import org.serratec.trabalhoFinal.repository.FuncionarioRepository;
 import org.serratec.trabalhoFinal.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +20,6 @@ public class FuncionarioService {
 
     public FuncionarioService(FuncionarioRepository funcionarioRepository, UsuarioRepository usuarioRepository,
 			PasswordEncoder passwordEncoder, EmailService emailService) {
-		super();
 		this.funcionarioRepository = funcionarioRepository;
 		this.usuarioRepository = usuarioRepository;
 		this.passwordEncoder = passwordEncoder;
@@ -29,19 +29,35 @@ public class FuncionarioService {
     public List<Funcionario> listarTodosEntidades() {
         return funcionarioRepository.findAll();
     }
-
-	public Funcionario cadastrarFuncionario(Funcionario funcionario) {
+    
+	public Funcionario cadastrarFuncionario(FuncionarioCadastroDTO dto) {
+		
+		if (funcionarioRepository.findByEmail(dto.getEmail()).isPresent()) {
+	        throw new RuntimeException("Email já cadastrado como funcionário."); 
+	        // Use uma exceção de negócio mais apropriada
+	    }
+		
         Usuario usuario = new Usuario();
-        usuario.setUsername(funcionario.getEmail());
-        usuario.setPassword(passwordEncoder.encode(funcionario.getSenha()));
-        usuario.setRole("ROLE_ADMIN");
+        usuario.setUsername(dto.getEmail());
+        
+        usuario.setPassword(passwordEncoder.encode(dto.getSenha())); 
+        
+        usuario.setRole("ROLE_ADMIN"); 
 
         usuarioRepository.save(usuario);
-        funcionario.setUsuario(usuario);
         
+        Funcionario funcionario = new Funcionario();
+        funcionario.setNome(dto.getNome());
+        funcionario.setEmail(dto.getEmail());
+        funcionario.setUsuario(usuario); 
+
         Funcionario saved = funcionarioRepository.save(funcionario);
         emailService.enviarNotificacaoFuncionario(saved, "Criado");
 
         return saved;
+    }
+    
+    public Funcionario buscarPorEmail(String email) {
+        return funcionarioRepository.findByEmail(email).orElse(null);
     }
 }

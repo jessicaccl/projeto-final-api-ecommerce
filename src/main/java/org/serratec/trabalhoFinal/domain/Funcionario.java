@@ -1,6 +1,7 @@
 package org.serratec.trabalhoFinal.domain;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,10 +23,8 @@ public class Funcionario {
     private String nome;
 
     @NotBlank
+    @Column(unique = true)
     private String email;
-
-    @NotBlank
-    private String senha;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario", referencedColumnName = "id")
@@ -33,12 +32,10 @@ public class Funcionario {
     
     public Funcionario() {}
 
-	public Funcionario(Long id, @NotBlank String nome, @NotBlank String email, @NotBlank String senha,
-			Usuario usuario) {
+	public Funcionario(Long id, @NotBlank String nome, @NotBlank String email, Usuario usuario) {
 		this.id = id;
 		this.nome = nome;
 		this.email = email;
-		this.senha = senha;
 		this.usuario = usuario;
 	}
 
@@ -64,14 +61,6 @@ public class Funcionario {
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	public String getSenha() {
-		return senha;
-	}
-
-	public void setSenha(String senha) {
-		this.senha = senha;
 	}
 
 	public Usuario getUsuario() {

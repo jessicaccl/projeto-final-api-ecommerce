@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
 import java.math.BigDecimal;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
@@ -31,12 +33,14 @@ public class Cliente {
 
     @NotBlank
     @Email
+    @Column(unique = true)
     private String email;
 
-    @NotBlank
+    @Transient
     private String senha;
 
     @NotBlank
+    @Column(unique = true)
     private String cpf;
 
     @ManyToOne(cascade = CascadeType.ALL)

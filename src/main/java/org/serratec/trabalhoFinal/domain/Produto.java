@@ -33,10 +33,12 @@ public class Produto {
 	@JoinColumn(name = "id_categoria")
 	private Categoria categoria;
 	
-	@Column(nullable = false)
-	private Boolean ativo = true;
+	private Integer quantidadeEstoque = 0;
 	
 	private Integer quantidadeVendida = 0;
+	
+	@Column(nullable = false)
+    private Boolean ativo = true;
 	
 	public Boolean getAtivo() {
 		return ativo;
@@ -84,5 +86,13 @@ public class Produto {
 
 	public void setQuantidadeVendida(Integer quantidadeVendida) {
 		this.quantidadeVendida = quantidadeVendida;
+	}
+
+	public Integer getQuantidadeEstoque() {
+		return quantidadeEstoque;
+	}
+
+	public void setQuantidadeEstoque(Integer quantidadeEstoque) {
+		this.quantidadeEstoque = quantidadeEstoque;
 	}
 }
