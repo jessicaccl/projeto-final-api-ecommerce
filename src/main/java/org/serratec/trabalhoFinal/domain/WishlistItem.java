@@ -11,7 +11,7 @@ import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "wishlist_item", uniqueConstraints = {
-    // Garante que um cliente não possa adicionar o mesmo produto duas vezes
+  //Não deixa o cliente adicionar o mesmo produto mais de uma vez
     @UniqueConstraint(columnNames = {"cliente_id", "produto_id"})
 })
 public class WishlistItem {
@@ -20,25 +20,20 @@ public class WishlistItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relacionamento com Cliente
     @ManyToOne(optional = false)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
-    // Relacionamento com Produto
     @ManyToOne(optional = false)
     @JoinColumn(name = "produto_id")
     private Produto produto;
 
     public WishlistItem() {}
 
-    // Construtor útil para criar o item
     public WishlistItem(Cliente cliente, Produto produto) {
         this.cliente = cliente;
         this.produto = produto;
     }
-
-    // --- Getters e Setters ---
 
     public Long getId() {
         return id;
