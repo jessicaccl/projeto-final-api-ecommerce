@@ -1,13 +1,22 @@
 package org.serratec.trabalhoFinal.dto;
 
 import org.serratec.trabalhoFinal.domain.StatusAssinatura;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class AssinaturaDTO {
 
 	private Long id;
+	
+	@NotBlank(message = "O endereço de entrega não pode ser vazio.")
 	private String endereco;
+	
+	@NotNull(message = "O idCliente não pode ser nulo.")
 	private Long idCliente;
+	
 	private StatusAssinatura status;
+	
+	@NotNull(message = "O idPlano não pode ser nulo.")
 	private Long idPlano;
 	
 	public Long getId() {
@@ -50,4 +59,3 @@ public class AssinaturaDTO {
 		this.idPlano = idPlano;
 	}
 }
-	

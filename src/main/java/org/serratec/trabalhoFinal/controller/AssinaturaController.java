@@ -27,7 +27,12 @@ public class AssinaturaController {
     public ResponseEntity<List<AssinaturaDTO>> listarAssinaturas() {
         return ResponseEntity.ok(assinaturaService.listar());
     }
-
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<AssinaturaDTO> buscarAssinaturaPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(assinaturaService.buscarPorId(id));
+    }
+    
     @PostMapping
     public ResponseEntity<AssinaturaDTO> cadastrarNovaAssinatura(@Validated @RequestBody AssinaturaDTO dto) {
         return new ResponseEntity<>(assinaturaService.criar(dto), HttpStatus.CREATED);
@@ -52,7 +57,7 @@ public class AssinaturaController {
     
     @PutMapping("/{id}/reativar")
     public ResponseEntity<Void> reativarAssinatura(@PathVariable Long id) {
-        assinaturaService.pausar(id);
+        assinaturaService.reativar(id);
         return ResponseEntity.noContent().build();
     }
     

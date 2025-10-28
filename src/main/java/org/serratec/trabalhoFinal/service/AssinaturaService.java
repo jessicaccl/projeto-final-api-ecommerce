@@ -70,7 +70,15 @@ public class AssinaturaService {
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
-
+    
+    @Transactional(readOnly = true)
+    public AssinaturaDTO buscarPorId(Long id) {
+        Assinatura assinatura = assinaturaRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Assinatura com ID " + id + " não encontrada."));
+        
+        return toDto(assinatura);
+    }
+    
     @Transactional
     public AssinaturaDTO criar(AssinaturaDTO dto) {
         Assinatura assinatura = toEntity(dto); 
@@ -118,6 +126,10 @@ public class AssinaturaService {
          Assinatura assinatura = assinaturaRepository.findById(id)
                  .orElseThrow(() -> new NotFoundException("Assinatura não encontrada."));
          
+         if (assinatura.getStatus() != StatusAssinatura.ATIVA) {
+        	 throw new IllegalArgumentException("Só é possível pausar assinaturas que estão ATIVAS.");
+         }
+         
          assinatura.setStatus(StatusAssinatura.PAUSADA);
          assinaturaRepository.save(assinatura);
      }
@@ -126,6 +138,10 @@ public class AssinaturaService {
      public void reativar(Long id) {
          Assinatura assinatura = assinaturaRepository.findById(id)
                  .orElseThrow(() -> new NotFoundException("Assinatura não encontrada."));
+         
+         if (assinatura.getStatus() == StatusAssinatura.ATIVA) {
+             throw new IllegalArgumentException("Esta assinatura já está ATIVA.");
+         }
          
          assinatura.setStatus(StatusAssinatura.ATIVA);
          assinaturaRepository.save(assinatura);
