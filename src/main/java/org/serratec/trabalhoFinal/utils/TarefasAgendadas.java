@@ -44,8 +44,5 @@ public class TarefasAgendadas {
 				emailService.notificarCashbackVencido(c, cashbackVencido);
 			}
 		}
-
 	}
-	
-
 }

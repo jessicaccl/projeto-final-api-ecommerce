@@ -27,7 +27,6 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(EmailException.class)
     public ResponseEntity<ErrorResponse> handleEmail(EmailException ex, HttpServletRequest request) {
         System.out.println("EmailException: " + ex.getMessage());
-        // Erro de serviço externo para envio de e-mail pode ser BAD_GATEWAY ou INTERNAL_SERVER_ERROR
         ErrorResponse body = buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro no Serviço de E-mail", ex.getMessage(), request.getRequestURI(), null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }

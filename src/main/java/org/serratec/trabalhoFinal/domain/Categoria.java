@@ -1,12 +1,15 @@
 package org.serratec.trabalhoFinal.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
@@ -23,8 +26,8 @@ public class Categoria {
     @Column(nullable = false)
     private String nome;
     
-    @ManyToOne(cascade = CascadeType.ALL)
-    private Produto produto;
+    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
+    private List<Produto> produtos = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -41,4 +44,12 @@ public class Categoria {
     public void setNome(String nome) {
         this.nome = nome;
     }
+
+	public List<Produto> getProdutos() {
+		return produtos;
+	}
+
+	public void setProdutos(List<Produto> produtos) {
+		this.produtos = produtos;
+	}
 }

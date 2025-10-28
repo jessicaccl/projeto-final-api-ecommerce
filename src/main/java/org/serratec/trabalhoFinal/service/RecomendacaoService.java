@@ -4,12 +4,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.serratec.trabalhoFinal.model.Pedido;
-import org.serratec.trabalhoFinal.model.Produto;
+import org.serratec.trabalhoFinal.domain.Pedido;
+import org.serratec.trabalhoFinal.domain.Produto;
 import org.serratec.trabalhoFinal.repository.PedidoRepository;
 import org.serratec.trabalhoFinal.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 public class RecomendacaoService {
 	
@@ -20,7 +19,7 @@ public class RecomendacaoService {
     private ProdutoRepository produtoRepository;
 
     public List<Produto> recomendarCafes(Long clienteId) {
-        List<Pedido> pedidos = pedidoRepository.findByClienteId(clienteId);
+    	List<Pedido> pedidos = pedidoRepository.findByClienteId(clienteId);
 
         if (pedidos.isEmpty()) {
             return produtoRepository.findTop5ByOrderByQuantidadeVendidaDesc();
@@ -33,6 +32,4 @@ public class RecomendacaoService {
 
         return produtoRepository.findProdutosRelacionados(produtosComprados);
     }
-}
-
 }
