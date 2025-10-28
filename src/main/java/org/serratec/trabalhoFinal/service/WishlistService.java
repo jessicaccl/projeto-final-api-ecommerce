@@ -28,37 +28,37 @@ public class WishlistService {
     
     @Transactional
     public WishlistItem adicionarProduto(Long clienteId, Long produtoId) {
-        //Verifica se Cliente e Produto existem
+
         Cliente cliente = clienteRepo.findById(clienteId)
                                      .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
         Produto produto = produtoRepo.findById(produtoId)
                                      .orElseThrow(() -> new NotFoundException("Produto não encontrado"));
         
-        //Verifica se o item já está na lista
         if (wishlistRepo.findByClienteIdAndProdutoId(clienteId, produtoId).isPresent()) {
             throw new IllegalArgumentException("Esse produto já está na sua lista de desejos.");
         }
         
- 
         WishlistItem novoItem = new WishlistItem(cliente, produto);
         return wishlistRepo.save(novoItem);
     }
     
     public List<WishlistResponseDTO> listarProdutos(Long clienteId) {
- 
+
         if (!clienteRepo.existsById(clienteId)) {
             throw new NotFoundException("Cliente não encontrado");
         }
         
+
         return wishlistRepo.findByClienteId(clienteId)
                            .stream()
                            .map(this::toDto)
                            .collect(Collectors.toList());
     }
     
+
     @Transactional
     public void removerProduto(Long clienteId, Long produtoId) {
-        // Busca e verifica se o item existe na lista
+
         WishlistItem item = wishlistRepo.findByClienteIdAndProdutoId(clienteId, produtoId)
                                         .orElseThrow(() -> new NotFoundException("Produto não encontrado na lista de desejos do cliente."));
 
@@ -68,17 +68,15 @@ public class WishlistService {
     private WishlistResponseDTO toDto(WishlistItem item) {
         WishlistResponseDTO dto = new WishlistResponseDTO();
         
-        dto.setId(item.getId());
-        
 
+        
         if (item.getProduto() != null) {
             dto.setProdutoId(item.getProduto().getId());
             dto.setNomeProduto(item.getProduto().getNome());
             dto.setPreco(item.getProduto().getPreco());
             
-   
             if (item.getProduto().getCategoria() != null) {
-                dto.setCategoriaId(item.getProduto().getCategoria().getId());
+
                 dto.setNomeCategoria(item.getProduto().getCategoria().getNome());
             }
         }
