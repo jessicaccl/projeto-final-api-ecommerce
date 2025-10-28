@@ -36,7 +36,8 @@ public class Produto {
 	@Column(nullable = false)
 	private Boolean ativo = true;
 	
-
+	private Integer quantidadeVendida = 0;
+	
 	public Boolean getAtivo() {
 		return ativo;
 	}
@@ -75,5 +76,13 @@ public class Produto {
 
 	public void setCategoria(Categoria categoria) {
 		this.categoria = categoria;
+	}
+
+	public Integer getQuantidadeVendida() {
+		return quantidadeVendida;
+	}
+
+	public void setQuantidadeVendida(Integer quantidadeVendida) {
+		this.quantidadeVendida = quantidadeVendida;
 	}
 }

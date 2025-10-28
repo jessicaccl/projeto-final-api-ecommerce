@@ -58,9 +58,9 @@ public class CategoriaController {
 		return ResponseEntity.ok(service.atualizar(id, dto));
 	}
 	
-	@DeleteMapping("/categorias/{id}")
-	public ResponseEntity<Void> deletarCategoria(@PathVariable Long id) {
-	    service.deletar(id);
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deletar(@PathVariable Long id) {
+	    service.deletarCategoria(id);
 	    return ResponseEntity.noContent().build();
 	}
 }
