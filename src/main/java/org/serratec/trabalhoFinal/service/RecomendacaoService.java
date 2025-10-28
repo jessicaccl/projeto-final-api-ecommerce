@@ -9,7 +9,9 @@ import org.serratec.trabalhoFinal.domain.Produto;
 import org.serratec.trabalhoFinal.repository.PedidoRepository;
 import org.serratec.trabalhoFinal.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RecomendacaoService {
 	
 	@Autowired

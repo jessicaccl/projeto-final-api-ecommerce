@@ -4,23 +4,18 @@ import java.math.BigDecimal;
 
 public class WishlistResponseDTO {
 
-    // ID do Item da Wishlist
+    //id do Item da lista de desejos
     private Long id;
     
-    // Dados Essenciais do Produto
     private Long produtoId;
     private String nomeProduto;
     private BigDecimal preco;
-    
-    // Dados Essenciais da Categoria
+
     private Long categoriaId;
     private String nomeCategoria;
 
-    // --- Construtor Vazio ---
     public WishlistResponseDTO() {}
 
-    // --- Getters e Setters ---
-    
     public Long getId() {
         return id;
     }
