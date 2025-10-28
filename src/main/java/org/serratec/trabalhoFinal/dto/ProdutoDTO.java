@@ -4,14 +4,18 @@ import java.math.BigDecimal;
 
 import org.serratec.trabalhoFinal.domain.Produto;
 
+import jakarta.validation.constraints.Min;
+
 public class ProdutoDTO {
 
     private Long id;
     private String nome;
     private BigDecimal preco;
-    private Boolean ativo;
     private Long categoriaId;
     private String categoriaNome;
+    
+    @Min(value = 0, message = "A quantidade em estoque não pode ser negativa.")
+    private Integer quantidadeEstoque;
 
     public ProdutoDTO() {}
 
@@ -19,7 +23,7 @@ public class ProdutoDTO {
         this.id = produto.getId();
         this.nome = produto.getNome();
         this.preco = produto.getPreco();
-        this.ativo = produto.getAtivo();
+        this.quantidadeEstoque = produto.getQuantidadeEstoque();
 
         if (produto.getCategoria() != null) {
             this.categoriaId = produto.getCategoria().getId();
@@ -51,14 +55,6 @@ public class ProdutoDTO {
 		this.preco = preco;
 	}
 
-	public Boolean getAtivo() {
-		return ativo;
-	}
-
-	public void setAtivo(Boolean ativo) {
-		this.ativo = ativo;
-	}
-
 	public Long getCategoriaId() {
 		return categoriaId;
 	}
@@ -73,5 +69,13 @@ public class ProdutoDTO {
 
 	public void setCategoriaNome(String categoriaNome) {
 		this.categoriaNome = categoriaNome;
+	}
+
+	public Integer getQuantidadeEstoque() {
+		return quantidadeEstoque;
+	}
+
+	public void setQuantidadeEstoque(Integer quantidadeEstoque) {
+		this.quantidadeEstoque = quantidadeEstoque;
 	}
 }
