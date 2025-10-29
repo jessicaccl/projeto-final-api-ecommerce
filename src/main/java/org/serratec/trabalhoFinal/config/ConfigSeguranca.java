@@ -40,9 +40,6 @@ public class ConfigSeguranca {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	    http.csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
 	            .authorizeHttpRequests(auth -> auth
-	                    // ----------------------------------------------------------------------------------
-	                    // RECURSOS PÚBLICOS
-	                    // ----------------------------------------------------------------------------------
 	                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 	                    .requestMatchers(HttpMethod.POST, "/login").permitAll()
 	                    .requestMatchers(HttpMethod.POST, "/clientes").permitAll()
@@ -50,10 +47,6 @@ public class ConfigSeguranca {
 	                    .requestMatchers(HttpMethod.GET, "/categorias/**").permitAll()
 	                    .requestMatchers(HttpMethod.GET, "/enderecos/**").permitAll()
 	                    .requestMatchers(HttpMethod.GET, "/planos/**").permitAll()
-
-	                    // ----------------------------------------------------------------------------------
-	                    // ACESSO DE ADMINISTRADOR (ROLE_ADMIN)
-	                    // ----------------------------------------------------------------------------------
 	                    .requestMatchers("/funcionarios/**").hasRole("ADMIN")
 	                    .requestMatchers("/cashbacks/adicionar/**").hasRole("ADMIN")
 	                    .requestMatchers(HttpMethod.GET, "/clientes").hasRole("ADMIN")
@@ -68,35 +61,19 @@ public class ConfigSeguranca {
 	                    .requestMatchers(HttpMethod.POST, "/planos").hasRole("ADMIN")
 	                    .requestMatchers(HttpMethod.PUT, "/planos/**").hasRole("ADMIN")
 	                    .requestMatchers(HttpMethod.DELETE, "/planos/**").hasRole("ADMIN")
-
-	                    // ----------------------------------------------------------------------------------
-	                    // ACESSO DE USUÁRIO (ROLE_USER ou ROLE_ADMIN)
-	                    // ----------------------------------------------------------------------------------
-	                    // Cliente, pedidos e cashback por ID
 	                    .requestMatchers(HttpMethod.GET, "/clientes/{id}").hasAnyRole("ADMIN", "USER")
 	                    .requestMatchers(HttpMethod.PUT, "/clientes/{id}").hasAnyRole("ADMIN", "USER")
 	                    .requestMatchers(HttpMethod.DELETE, "/clientes/{id}").hasRole("ADMIN")
-	                    .requestMatchers(HttpMethod.GET, "/pedidos/meus").hasRole("USER")
+	                    .requestMatchers(HttpMethod.GET, "/pedidos/meus").hasAnyRole("ADMIN", "USER")
 	                    .requestMatchers(HttpMethod.GET, "/pedidos/{id}").hasAnyRole("ADMIN", "USER")
 	                    .requestMatchers(HttpMethod.DELETE, "/pedidos/{id}").hasRole("ADMIN")
-	                    .requestMatchers("/cashbacks/cliente/{clienteId}").hasRole("USER") 
-
-	                    // Pedidos e Carrinho de Compras (usando * para o ID)
-	                    .requestMatchers("/pedidos/cart/*").hasRole("USER")      // POST /pedidos/cart/{clienteId}
-	                    .requestMatchers("/pedidos/pagar/*").hasRole("USER")     // PUT /pedidos/pagar/{pedidoId}
-
-	                    // Wishlist e Recomendações (CORRIGIDO: usando * para o {clienteId})
-	                    .requestMatchers("/clientes/*/wishlist/**").hasRole("USER") 
-	                    
-	                    // Assinaturas e Recomendações
-	                    .requestMatchers("/assinaturas/**").hasRole("USER")
-	                    .requestMatchers("/recomendacoes/**").hasRole("USER")
-
-	                    // ----------------------------------------------------------------------------------
-	                    // OUTRAS REQUISIÇÕES
-	                    // ----------------------------------------------------------------------------------
+	                    .requestMatchers("/cashbacks/cliente/{clienteId}").hasAnyRole("ADMIN", "USER")
+	                    .requestMatchers("/pedidos/cart/*").hasAnyRole("ADMIN", "USER")
+	                    .requestMatchers("/pedidos/pagar/*").hasAnyRole("ADMIN", "USER")
+	                    .requestMatchers("/clientes/*/wishlist/**").hasAnyRole("ADMIN", "USER")
+	                    .requestMatchers("/assinaturas/**").hasAnyRole("ADMIN", "USER")
+	                    .requestMatchers("/recomendacoes/**").hasAnyRole("ADMIN", "USER")
 	                    .anyRequest().authenticated() 
-
 	            ).sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(

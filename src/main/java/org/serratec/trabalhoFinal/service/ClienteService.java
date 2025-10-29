@@ -68,7 +68,7 @@ public class ClienteService {
     	cliente.setEndereco(endereco);
 
     	Cliente saved = clienteRepository.save(cliente);
-        emailService.enviarNotificacaoCliente(saved, "criado");
+        emailService.enviarNotificacaoCliente(saved, "Sua conta foi criada em nosso site! Seja bem-vindo e beba muito café!");
         
         return toDto(saved);
     }
@@ -95,21 +95,21 @@ public class ClienteService {
         }
 
         Cliente saved = clienteRepository.save(cliente);
-        emailService.enviarNotificacaoCliente(saved, "atualizado");
+        emailService.enviarNotificacaoCliente(saved, "Sua conta foi atualizada!! Vai mais café aí?");
         
         return toDto(saved);
     }
 
     public ClienteDTO buscarPorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado! Tente novamente."));
         return toDto(cliente);
     }
     
     @Transactional
     public void deletar(Long id) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Não foi possível deletar esta conta! Tente novamente."));
 
         cliente.setAtivo(false);
         clienteRepository.save(cliente);

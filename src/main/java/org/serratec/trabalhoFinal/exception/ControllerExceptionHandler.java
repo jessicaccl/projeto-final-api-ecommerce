@@ -80,7 +80,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse body = buildError(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Erro interno",
-                "Ocorreu um erro interno no servidor. Verifique o console para mais detalhes.",
+                "Ocorreu um erro interno no servidor. Não foi possível concluir essa requisição!",
                 request.getRequestURI(),
                 null
         );
