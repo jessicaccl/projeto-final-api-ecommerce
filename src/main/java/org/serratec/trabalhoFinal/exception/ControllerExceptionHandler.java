@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import org.springframework.http.HttpStatusCode;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,7 +44,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse body = buildError(
                 HttpStatus.CONFLICT,
                 "Conflito de Dados",
-                "O registro não pôde ser salvo pois já existe no sistema.",
+                "O registro não pôde ser salvo pois já existe no sistema (Ex: CPF ou E-mail duplicado).",
                 request.getRequestURI(),
                 null
         );
@@ -80,7 +80,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse body = buildError(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Erro interno",
-                "Ocorreu um erro interno no servidor. Verifique o console para mais detalhes.",
+                "Ocorreu um erro interno no servidor. Não foi possível concluir essa requisição!",
                 request.getRequestURI(),
                 null
         );
@@ -98,6 +98,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
             HttpStatus status,
+            HttpStatusCode status1,
             WebRequest request) {
 
         List<String> errors = ex.getBindingResult()
