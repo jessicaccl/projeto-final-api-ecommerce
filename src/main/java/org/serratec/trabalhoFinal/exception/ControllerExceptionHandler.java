@@ -44,7 +44,8 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse body = buildError(
                 HttpStatus.CONFLICT,
                 "Conflito de Dados",
-                "O registro não pôde ser salvo pois já existe no sistema (Ex: CPF ou E-mail duplicado).",
+                "O registro não pôde ser salvo pois já existe dados duplicados no sistema."
+                ,
                 request.getRequestURI(),
                 null
         );
@@ -97,8 +98,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
-            HttpStatus status,
-            HttpStatusCode status1,
+            HttpStatusCode status,
             WebRequest request) {
 
         List<String> errors = ex.getBindingResult()

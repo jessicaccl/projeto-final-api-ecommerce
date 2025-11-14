@@ -1,0 +1,20 @@
+# Ignora arquivos do Java/Maven
+/target/
+*.jar
+*.war
+*.ear
+
+# Ignora arquivos do Node.js
+/node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Ignora arquivos do Eclipse
+.project
+.classpath
+.settings/
+
+# Ignora arquivos do S.O.
+.DS_Store
+Thumbs.db
